@@ -167,12 +167,12 @@ ul { list-style: none; margin: 0; padding: 0; }
 .btn-outline {
   background: transparent;
   color: var(--text);
-  border: 2px solid var(--border-light);
+  border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
 .btn-outline:hover {
   background: rgba(255, 255, 255, 0.05);
-  border-color: var(--text-muted);
+  border-color: rgba(255, 255, 255, 0.5);
   color: #fff;
   transform: translateY(-3px);
 }
@@ -253,6 +253,9 @@ ul { list-style: none; margin: 0; padding: 0; }
   display: flex;
   list-style: none;
   gap: 2rem;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .nav-link {
@@ -284,6 +287,15 @@ ul { list-style: none; margin: 0; padding: 0; }
 .nav-link:hover::after,
 .nav-link.active::after {
   width: 100%;
+}
+
+.nav-link-red {
+  color: var(--primary) !important;
+  font-weight: 600;
+}
+
+.nav-link-red::after {
+  display: none;
 }
 
 .nav-right {
@@ -517,6 +529,9 @@ ul { list-style: none; margin: 0; padding: 0; }
 .hero-stats {
   display: flex;
   gap: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 2rem;
 }
 
 .stat-item {
@@ -2213,6 +2228,10 @@ ul { list-style: none; margin: 0; padding: 0; }
     transition: all 0.3s ease;
     z-index: 999;
     box-shadow: -4px 4px 20px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    left: auto;
+    right: 0;
+    transform: translateX(100%);
   }
   .nav-list.active {
     transform: translateX(0);
@@ -2228,6 +2247,7 @@ ul { list-style: none; margin: 0; padding: 0; }
     border-bottom: 1px solid #f1f5f9;
   }
   .nav-link:last-child { border-bottom: none; }
+  .nav-link-red { color: var(--primary) !important; }
   .nav-right { gap: 0.8rem; }
   .lang-switcher { padding: 0.35rem 0.5rem; gap: 0.2rem; }
   .lang-btn { font-size: 0.8rem; padding: 0.2rem 0.4rem; }
