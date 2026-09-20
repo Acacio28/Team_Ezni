@@ -945,27 +945,27 @@ ul { list-style: none; margin: 0; padding: 0; }
 /* ===== Team Section ===== */
 .team-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
 }
 
 .team-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  background: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
   overflow: hidden;
   transition: var(--transition);
 }
 
 .team-card:hover {
   transform: translateY(-10px);
-  border-color: rgba(237, 28, 36, 0.3);
-  box-shadow: 0 20px 50px rgba(237, 28, 36, 0.15);
+  border-color: rgba(237, 28, 36, 0.5);
+  box-shadow: 0 20px 50px rgba(237, 28, 36, 0.2);
 }
 
 .team-photo-wrapper {
   position: relative;
-  height: 280px;
+  height: 320px;
   overflow: hidden;
 }
 
@@ -973,12 +973,13 @@ ul { list-style: none; margin: 0; padding: 0; }
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: top center;
   transition: var(--transition-slow);
   filter: grayscale(100%);
 }
 
 .team-card:hover .team-photo {
-  transform: scale(1.08);
+  transform: scale(1.05);
   filter: grayscale(0%);
 }
 
@@ -988,7 +989,7 @@ ul { list-style: none; margin: 0; padding: 0; }
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(to top, rgba(11, 17, 32, 0.9) 0%, transparent 50%);
+  background: linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.4) 40%, transparent 70%);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -1028,17 +1029,19 @@ ul { list-style: none; margin: 0; padding: 0; }
 }
 
 .team-info {
-  padding: 1.5rem;
+  padding: 1.25rem;
+  background: #0f172a;
 }
 
 .team-info h3 {
-  font-size: 1.2rem;
-  margin-bottom: 0.3rem;
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
   font-family: var(--font-display);
+  color: #fff;
 }
 
 .team-role {
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -1047,19 +1050,23 @@ ul { list-style: none; margin: 0; padding: 0; }
   -webkit-text-fill-color: transparent;
   background-clip: text;
   display: block;
-  margin-bottom: 0.8rem;
+  margin-bottom: 0.75rem;
 }
 
 .team-info p {
-  font-size: 0.9rem;
-  color: var(--text-muted);
+  font-size: 0.85rem;
+  color: #94a3b8;
   margin-bottom: 1rem;
-  line-height: 1.6;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .team-link {
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: var(--primary);
   display: inline-flex;
   align-items: center;
@@ -1085,11 +1092,24 @@ ul { list-style: none; margin: 0; padding: 0; }
 
 .team-link i {
   transition: var(--transition);
-  font-size: 0.75rem;
+  font-size: 0.7rem;
 }
 
 .team-link:hover i {
   transform: translateX(3px);
+}
+
+/* Responsive Team Grid */
+@media (max-width: 1200px) {
+  .team-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 992px) {
+  .team-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 576px) {
+  .team-grid { grid-template-columns: 1fr; }
 }
 
 /* ===== Team Modal ===== */
@@ -2081,7 +2101,6 @@ ul { list-style: none; margin: 0; padding: 0; }
   .about-left { position: static; padding-right: 0; margin-bottom: 3rem; }
   .services-grid { grid-template-columns: repeat(2, 1fr); }
   .projects-grid { grid-template-columns: repeat(2, 1fr); }
-  .team-grid { grid-template-columns: repeat(2, 1fr); }
   .pricing-grid { grid-template-columns: 1fr; max-width: 400px; margin: 0 auto; }
   .pricing-card-featured { transform: none; }
   .pricing-card-featured:hover { transform: translateY(-8px); }
@@ -2139,7 +2158,6 @@ ul { list-style: none; margin: 0; padding: 0; }
   .stat-number { font-size: 2rem; }
   .services-grid { grid-template-columns: 1fr; }
   .projects-grid { grid-template-columns: 1fr; }
-  .team-grid { grid-template-columns: 1fr; }
   .testimonials-grid { grid-template-columns: 1fr; }
   .contact-info { grid-template-columns: 1fr; }
   .section-title { font-size: 2rem; }
