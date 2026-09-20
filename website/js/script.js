@@ -193,6 +193,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var translations = {
     en: {
       'hero.badge': 'Enterprise ICT & Digital Solutions',
+      'hero.title': '<span class="text-white">Leading ICT,</span><br><span class="text-red">Cybersecurity,</span><br><span class="text-white">Software</span> <span class="text-stroke">Development</span><br><span class="text-white">in</span> <span class="text-gold">Timor-Leste</span>',
       'hero.subtitle': 'Enzi Dev delivers professional ICT services — Cybersecurity, Bitdefender GravityZone endpoint security, software & web development, cloud hosting, Cisco Meraki networking and 24/7 technical support for government, NGOs, education and private sector organizations.',
       'hero.shop': 'Shop Electronics',
       'hero.quote': 'Get a Free Quote',
@@ -228,9 +229,10 @@ document.addEventListener('DOMContentLoaded', function () {
       'nav.shop': 'Shop'
     },
     tet: {
-      'hero.badge': 'Solusaun TIK Empresa & Digital',
-      'hero.subtitle': 'Enzi Dev fornese servisu TIK profisionál iha Timor-Leste inklui Seguransa Siber, Bitdefender GravityZone seguransa endpoint, dezenvolvimentu software & web, cloud hosting, Cisco Meraki redes no suporte tékniku 24/7 ba governu, ONG, edukasaun no organizasaun setor privadu.',
-      'hero.shop': 'Komersializa Eletronika',
+      'hero.badge': 'Solusaun ICT & Digitál ba Empreza',
+      'hero.title': '<span class="text-white">Lidera ICT,</span><br><span class="text-red">Seguransa Sibernétika,</span><br><span class="text-white">Dezenvolvimentu</span> <span class="text-stroke">Software</span><br><span class="text-white">iha</span> <span class="text-gold">Timor-Leste</span>',
+      'hero.subtitle': 'KINOS fornese servisu ICT profisionál iha Timor-Leste inklui Seguransa Sibernétika, Bitdefender GravityZone, dezenvolvimentu software & web, cloud hosting, rede Cisco Meraki no apoiu tékniku 24/7 ba governu, ONG, edukasaun no organizasaun setor privadu.',
+      'hero.shop': 'Buka Loja',
       'hero.quote': 'Haidu Frente',
       'hero.clients': 'Kliente Servisu',
       'hero.projects': 'Projetu Entrega',
@@ -276,10 +278,17 @@ document.addEventListener('DOMContentLoaded', function () {
         el.innerHTML = translations[lang][key];
       }
     });
+    var htmlElements = document.querySelectorAll('[data-i18n-html]');
+    htmlElements.forEach(function (el) {
+      var key = el.getAttribute('data-i18n-html');
+      if (translations[lang] && translations[lang][key]) {
+        el.innerHTML = translations[lang][key];
+      }
+    });
     document.querySelectorAll('.lang-btn').forEach(function (btn) {
       btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
     });
-    document.documentElement.setAttribute('lang', lang === 'tet' ? 'pt' : lang);
+    document.documentElement.setAttribute('lang', lang === 'tet' ? 'tet' : lang);
   }
 
   document.querySelectorAll('.lang-btn').forEach(function (btn) {
