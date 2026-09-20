@@ -328,15 +328,21 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.lang-btn').forEach(function (btn) {
       btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
     });
+    var langCode = document.getElementById('lang-code');
+    if (langCode) {
+      langCode.textContent = lang === 'tet' ? 'TT' : 'EN';
+    }
     document.documentElement.setAttribute('lang', lang === 'tet' ? 'tet' : lang);
   }
 
-  document.querySelectorAll('.lang-btn').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      var lang = this.getAttribute('data-lang');
-      switchLanguage(lang);
+  // Language toggle button
+  var langToggle = document.getElementById('lang-toggle');
+  if (langToggle) {
+    langToggle.addEventListener('click', function () {
+      var newLang = currentLang === 'en' ? 'tet' : 'en';
+      switchLanguage(newLang);
     });
-  });
+  }
 
 });
 
