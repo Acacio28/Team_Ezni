@@ -448,16 +448,16 @@ ul { list-style: none; margin: 0; padding: 0; }
   align-items: center;
   gap: 0.5rem;
   padding: 0.6rem 1.2rem;
-  background: rgba(237, 28, 36, 0.15);
-  border: 1px solid rgba(237, 28, 36, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-left: 3px solid var(--primary);
   border-radius: 0 4px 4px 0;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 600;
   color: #fff;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.2rem;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   opacity: 1 !important;
   transform: none !important;
 }
