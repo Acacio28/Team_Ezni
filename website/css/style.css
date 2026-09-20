@@ -3,6 +3,19 @@
    Inspired by kinos.tl: Deep navy + Red/Gold accents
    ============================================================ */
 
+/* ===== Accessibility ===== */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* ===== Variables ===== */
 :root {
   --bg-primary: #0B1120;
@@ -2319,5 +2332,4 @@ ul { list-style: none; margin: 0; padding: 0; }
 @keyframes scaleLine {
   from { transform: scaleX(0); }
   to { transform: scaleX(1); }
-}
 }
