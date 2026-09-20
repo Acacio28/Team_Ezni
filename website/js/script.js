@@ -4,6 +4,34 @@
 
 document.addEventListener('DOMContentLoaded', function () {
 
+  // ===== Lenis Smooth Scroll =====
+  if (typeof Lenis !== 'undefined') {
+    var lenis = new Lenis({
+      duration: 1.2,
+      easing: function (t) {
+        return Math.min(1, 1.001 - Math.pow(2, -10 * t));
+      },
+      direction: 'vertical',
+      gestureDirection: 'vertical',
+      smooth: true,
+      mouseMultiplier: 1,
+      smoothTouch: false,
+      touchMultiplier: 2,
+      infinite: false,
+    });
+
+    function raf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
+
+    // Update scroll triggers on Lenis scroll
+    lenis.on('scroll', function (e) {
+      // Optional: log scroll position
+    });
+  }
+
   // ===== Scroll Animations (Intersection Observer) =====
   var animatedElements = document.querySelectorAll('[data-animate]');
   
@@ -24,6 +52,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
   animatedElements.forEach(function (el) {
     observer.observe(el);
+  });
+
+  // ===== Mouse Tracking Spotlight =====
+  var spotlightCards = document.querySelectorAll('.spotlight-card');
+  spotlightCards.forEach(function (card) {
+    card.addEventListener('mousemove', function (e) {
+      var rect = card.getBoundingClientRect();
+      var x = e.clientX - rect.left;
+      var y = e.clientY - rect.top;
+      card.style.setProperty('--mx', x + 'px');
+      card.style.setProperty('--my', y + 'px');
+    });
   });
 
   // ===== Mobile Menu Toggle =====

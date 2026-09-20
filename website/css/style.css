@@ -44,8 +44,9 @@
   --radius-lg: 1rem;
   --radius-xl: 1.5rem;
 
-  --transition: all 0.3s ease;
-  --transition-slow: all 0.5s ease;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 
   --font-display: 'Clash Display', sans-serif;
   --font-body: 'Outfit', sans-serif;
@@ -789,7 +790,9 @@ ul { list-style: none; margin: 0; padding: 0; }
 }
 
 .service-card {
-  background: var(--bg-card);
+  background: rgba(17, 24, 39, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 2rem;
@@ -808,13 +811,13 @@ ul { list-style: none; margin: 0; padding: 0; }
   background: var(--primary);
   transform: scaleX(0);
   transform-origin: left;
-  transition: transform 0.4s ease;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .service-card:hover {
   transform: translateY(-8px);
   border-color: rgba(237, 28, 36, 0.3);
-  box-shadow: 0 16px 40px rgba(237, 28, 36, 0.1);
+  box-shadow: 0 0 32px rgba(237, 28, 36, 0.25);
 }
 
 .service-card:hover::before {
@@ -1562,7 +1565,9 @@ ul { list-style: none; margin: 0; padding: 0; }
 }
 
 .pricing-card {
-  background: var(--bg-card);
+  background: rgba(17, 24, 39, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 2.5rem 2rem;
@@ -1573,6 +1578,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 
 .pricing-card:hover {
   transform: translateY(-8px);
+  box-shadow: 0 0 32px rgba(237, 28, 36, 0.15);
 }
 
 .pricing-card-featured {
@@ -2185,6 +2191,66 @@ ul { list-style: none; margin: 0; padding: 0; }
 .spotlight-card > * {
   position: relative;
   z-index: 1;
+}
+
+/* ===== Mouse Tracking Spotlight ===== */
+.spotlight-card {
+  --mx: 50%;
+  --my: 50%;
+  position: relative;
+  overflow: hidden;
+}
+
+.spotlight-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    600px circle at var(--mx) var(--my),
+    rgba(237, 28, 36, 0.15),
+    transparent 40%
+  );
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.spotlight-card:hover::after {
+  opacity: 1;
+}
+
+/* ===== Pulse Ring Animation (WhatsApp) ===== */
+.whatsapp-float {
+  position: relative;
+}
+
+.whatsapp-float::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: rgba(37, 211, 102, 0.4);
+  transform: translate(-50%, -50%) scale(1);
+  animation: pulse-ring 1.8s ease-out infinite;
+  z-index: -1;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.9);
+    opacity: 0;
+  }
 }
 
 /* ===== General Scroll Animations ===== */
