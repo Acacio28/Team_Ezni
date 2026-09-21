@@ -5,7 +5,7 @@ app_name = 'website'
 
 urlpatterns = [
     # Main page
-    path('', views.index, name='index'),
+  path('', views.index, name='index'),
     
     # API endpoints
     path('api/team/', views.api_team, name='api_team'),
