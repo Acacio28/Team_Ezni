@@ -11,7 +11,7 @@ import json
 from .models import (
     TeamMember, Address, Service, Project,
     Testimonial, Partner, FAQ, PricingPlan,
-    ContactMessage, CompanyInfo, Post
+    ContactMessage, CompanyInfo, Post, AboutChapter
 )
 
 WEBSITE_DIR = Path(__file__).resolve().parent.parent.parent / 'website'
@@ -216,14 +216,222 @@ def api_post_detail(request, pk):
     return JsonResponse({'success': True, 'post': _post_to_dict(post, full=True)})
 
 
-# ===== Existing API Views for AJAX =====
+# ===== About Chapters API =====
 
-@require_http_methods(["GET"])
+def _about_to_dict(c):
+    return {
+        'id': c.id,
+        'key': c.key,
+        'titleEn': c.title_en,
+        'titleTet': c.title_tet,
+        'bodyEn': c.body_en,
+        'bodyTet': c.body_tet,
+        'order': c.order,
+    }
+
+
+def _validate_about_payload(data, partial=False):
+    errors = {}
+    if not partial or 'key' in data:
+        key = (data.get('key') or '').strip()
+        if not key:
+            errors['key'] = 'Key is required.'
+        elif len(key) > 40:
+            errors['key'] = 'Key max 40 characters.'
+    if not partial or 'titleEn' in data:
+        if not (data.get('titleEn') or '').strip():
+            errors['titleEn'] = 'English title is required.'
+    if not partial or 'bodyEn' in data:
+        if not (data.get('bodyEn') or '').strip():
+            errors['bodyEn'] = 'English body is required.'
+    return errors
+
+
+def _apply_about_payload(chapter, data):
+    if 'key' in data:
+        chapter.key = (data.get('key') or '').strip()[:40]
+    if 'titleEn' in data:
+        chapter.title_en = (data.get('titleEn') or '').strip()[:200]
+    if 'titleTet' in data:
+        chapter.title_tet = (data.get('titleTet') or '').strip()[:200]
+    if 'bodyEn' in data:
+        chapter.body_en = (data.get('bodyEn') or '').strip()
+    if 'bodyTet' in data:
+        chapter.body_tet = (data.get('bodyTet') or '').strip()
+    if 'order' in data:
+        try:
+            chapter.order = int(data.get('order') or 0)
+        except (TypeError, ValueError):
+            pass
+    if 'is_active' in data:
+        chapter.is_active = bool(data.get('is_active'))
+
+
+@require_http_methods(["GET", "POST"])
+def api_about(request):
+    """GET: public chapters. POST: create (admin only)."""
+    if request.method == 'GET':
+        qs = AboutChapter.objects.filter(is_active=True)
+        chapters = [_about_to_dict(c) for c in qs]
+        return JsonResponse({'chapters': chapters, 'count': len(chapters)})
+
+    if not _is_admin(request.user):
+        return JsonResponse({'success': False, 'message': 'Admin access required.'}, status=403)
+    data = _json_body(request)
+    errors = _validate_about_payload(data)
+    if errors:
+        return JsonResponse({'success': False, 'errors': errors}, status=400)
+    chapter = AboutChapter()
+    _apply_about_payload(chapter, data)
+    chapter.save()
+    return JsonResponse({'success': True, 'chapter': _about_to_dict(chapter)}, status=201)
+
+
+@require_http_methods(["GET", "PUT", "PATCH", "DELETE"])
+def api_about_detail(request, pk):
+    try:
+        chapter = AboutChapter.objects.get(pk=pk)
+    except AboutChapter.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Chapter not found.'}, status=404)
+
+    if request.method == 'GET':
+        if not chapter.is_active and not _is_admin(request.user):
+            return JsonResponse({'success': False, 'message': 'Chapter not found.'}, status=404)
+        return JsonResponse({'chapter': _about_to_dict(chapter)})
+
+    if not _is_admin(request.user):
+        return JsonResponse({'success': False, 'message': 'Admin access required.'}, status=403)
+
+    if request.method == 'DELETE':
+        key = chapter.key
+        chapter.delete()
+        return JsonResponse({'success': True, 'message': f'Deleted "{key}".'})
+
+    data = _json_body(request)
+    partial = request.method == 'PATCH'
+    errors = _validate_about_payload(data, partial=partial)
+    if errors:
+        return JsonResponse({'success': False, 'errors': errors}, status=400)
+    _apply_about_payload(chapter, data)
+    chapter.save()
+    return JsonResponse({'success': True, 'chapter': _about_to_dict(chapter)})
+
+
+# ===== Team API (CRUD — write requires admin session) =====
+
+def _team_to_dict(m):
+    return {
+        'id': m.id,
+        'name': m.name,
+        'role': m.position,
+        'bio': m.bio,
+        'photo': m.photo_url or '',
+        'email': m.email,
+        'phone': m.phone,
+        'order': m.order,
+    }
+
+
+def _validate_team_payload(data, partial=False):
+    errors = {}
+    if not partial or 'name' in data:
+        name = (data.get('name') or '').strip()
+        if not name:
+            errors['name'] = 'Name is required.'
+        elif len(name) > 200:
+            errors['name'] = 'Name max 200 characters.'
+    if not partial or 'role' in data:
+        role = (data.get('role') or '').strip()
+        if not role:
+            errors['role'] = 'Role is required.'
+        elif len(role) > 200:
+            errors['role'] = 'Role max 200 characters.'
+    if 'bio' in data and len(data.get('bio') or '') > 2000:
+        errors['bio'] = 'Bio max 2000 characters.'
+    if 'email' in data:
+        email = (data.get('email') or '').strip()
+        if email and ('@' not in email or ' ' in email):
+            errors['email'] = 'Invalid email address.'
+    if 'phone' in data and len(data.get('phone') or '') > 50:
+        errors['phone'] = 'Phone max 50 characters.'
+    if 'photo' in data and len(data.get('photo') or '') > 500:
+        errors['photo'] = 'Photo path max 500 characters.'
+    return errors
+
+
+def _apply_team_payload(member, data):
+    if 'name' in data:
+        member.name = (data.get('name') or '').strip()[:200]
+    if 'role' in data:
+        member.position = (data.get('role') or '').strip()[:200]
+    if 'bio' in data:
+        member.bio = (data.get('bio') or '').strip()
+    if 'photo' in data:
+        member.photo_url = (data.get('photo') or '').strip()[:500]
+    if 'email' in data:
+        member.email = (data.get('email') or '').strip()
+    if 'phone' in data:
+        member.phone = (data.get('phone') or '').strip()[:50]
+    if 'order' in data:
+        try:
+            member.order = int(data.get('order') or 0)
+        except (TypeError, ValueError):
+            pass
+    if 'is_active' in data:
+        member.is_active = bool(data.get('is_active'))
+
+
+@require_http_methods(["GET", "POST"])
 def api_team(request):
-    members = TeamMember.objects.filter(is_active=True).values(
-        'id', 'name', 'position', 'bio', 'email', 'linkedin', 'twitter', 'order'
-    )
-    return JsonResponse({'team': list(members)})
+    """GET: public active members. POST: create (admin only)."""
+    if request.method == 'GET':
+        qs = TeamMember.objects.filter(is_active=True)
+        members = [_team_to_dict(m) for m in qs]
+        return JsonResponse({'team': members, 'count': len(members)})
+
+    if not _is_admin(request.user):
+        return JsonResponse({'success': False, 'message': 'Admin access required.'}, status=403)
+    data = _json_body(request)
+    errors = _validate_team_payload(data)
+    if errors:
+        return JsonResponse({'success': False, 'errors': errors}, status=400)
+    member = TeamMember()
+    _apply_team_payload(member, data)
+    member.save()
+    return JsonResponse({'success': True, 'member': _team_to_dict(member)}, status=201)
+
+
+@require_http_methods(["GET", "PUT", "PATCH", "DELETE"])
+def api_team_detail(request, pk):
+    try:
+        member = TeamMember.objects.get(pk=pk)
+    except TeamMember.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Member not found.'}, status=404)
+
+    if request.method == 'GET':
+        if not member.is_active and not _is_admin(request.user):
+            return JsonResponse({'success': False, 'message': 'Member not found.'}, status=404)
+        return JsonResponse({'member': _team_to_dict(member)})
+
+    if not _is_admin(request.user):
+        return JsonResponse({'success': False, 'message': 'Admin access required.'}, status=403)
+
+    if request.method == 'DELETE':
+        name = member.name
+        member.delete()
+        return JsonResponse({'success': True, 'message': f'Deleted "{name}".'})
+
+    data = _json_body(request)
+    partial = request.method == 'PATCH'
+    errors = _validate_team_payload(data, partial=partial)
+    if errors:
+        return JsonResponse({'success': False, 'errors': errors}, status=400)
+    _apply_team_payload(member, data)
+    member.save()
+    return JsonResponse({'success': True, 'member': _team_to_dict(member)})
+
+
+# ===== Existing API Views for AJAX =====
 
 
 @require_http_methods(["GET"])

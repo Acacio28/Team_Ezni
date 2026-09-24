@@ -2,16 +2,25 @@ from django.contrib import admin
 from .models import (
     TeamMember, Address, Service, Project, 
     Testimonial, Partner, FAQ, PricingPlan, 
-    ContactMessage, CompanyInfo, Post
+    ContactMessage, CompanyInfo, Post, AboutChapter
 )
 
 
 @admin.register(TeamMember)
 class TeamMemberAdmin(admin.ModelAdmin):
-    list_display = ['name', 'position', 'email', 'order', 'is_active']
+    list_display = ['name', 'position', 'email', 'phone', 'order', 'is_active']
     list_filter = ['is_active']
     search_fields = ['name', 'position', 'bio']
     list_editable = ['order', 'is_active']
+
+
+@admin.register(AboutChapter)
+class AboutChapterAdmin(admin.ModelAdmin):
+    list_display = ['key', 'title_en', 'title_tet', 'order', 'is_active', 'updated_at']
+    list_filter = ['is_active']
+    search_fields = ['key', 'title_en', 'title_tet', 'body_en', 'body_tet']
+    list_editable = ['order', 'is_active']
+    prepopulated_fields = {'key': ('title_en',)}
 
 
 @admin.register(Address)

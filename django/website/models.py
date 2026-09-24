@@ -8,6 +8,8 @@ class TeamMember(models.Model):
     position = models.CharField(max_length=200)
     bio = models.TextField(blank=True)
     photo = models.ImageField(upload_to='team/', blank=True, null=True)
+    photo_url = models.CharField(max_length=500, blank=True, help_text='Static path or URL, e.g. images/team/Acacio.jpg')
+    phone = models.CharField(max_length=50, blank=True)
     email = models.EmailField(blank=True)
     linkedin = models.URLField(blank=True)
     twitter = models.URLField(blank=True)
@@ -23,6 +25,27 @@ class TeamMember(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.position}"
+
+
+class AboutChapter(models.Model):
+    """About-section chapters (Who We Are, Mission, Vision) with EN + Tetum."""
+    key = models.SlugField(max_length=40, unique=True, help_text='e.g. ch1, ch2, ch3')
+    title_en = models.CharField(max_length=200)
+    title_tet = models.CharField(max_length=200, blank=True)
+    body_en = models.TextField()
+    body_tet = models.TextField(blank=True)
+    order = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['order', 'key']
+        verbose_name = 'About Chapter'
+        verbose_name_plural = 'About Chapters'
+
+    def __str__(self):
+        return f"{self.key}: {self.title_en}"
 
 
 class Address(models.Model):

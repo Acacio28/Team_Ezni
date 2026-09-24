@@ -16,8 +16,13 @@ urlpatterns = [
     path('api/posts/', views.api_posts, name='api_posts'),
     path('api/posts/<int:pk>/', views.api_post_detail, name='api_post_detail'),
 
+    # About chapters (CRUD — write requires admin session)
+    path('api/about/', views.api_about, name='api_about'),
+    path('api/about/<int:pk>/', views.api_about_detail, name='api_about_detail'),
+
     # Other API endpoints
     path('api/team/', views.api_team, name='api_team'),
+    path('api/team/<int:pk>/', views.api_team_detail, name='api_team_detail'),
     path('api/services/', views.api_services, name='api_services'),
     path('api/projects/', views.api_projects, name='api_projects'),
     path('api/projects/<slug:slug>/', views.api_project_detail, name='api_project_detail'),

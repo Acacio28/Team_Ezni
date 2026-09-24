@@ -176,25 +176,32 @@
           </div>
         </div>
         <div class="about-right">
-          <div class="about-chapter" data-animate="fade-up" data-delay="0">
-            <span class="about-number">01</span>
-            <div class="about-chapter-content">
-              <h3 data-i18n="about.ch1title">Who We Are</h3>
-              <p data-i18n="about.ch1body">Based in Fatuhada, Dili, Timor-Leste, Enzi Dev is a full-service ICT company offering technology solutions that help businesses, government institutions, NGOs and private organizations modernize, connect and grow.</p>
-            </div>
+          <div class="about-admin-bar" id="aboutAdminBar" hidden>
+            <button type="button" class="posts-admin-btn" id="aboutNewBtn" hidden>
+              <i class="fas fa-plus"></i> <span data-i18n="admin.newChapter">New chapter</span>
+            </button>
           </div>
-          <div class="about-chapter" data-animate="fade-up" data-delay="80">
-            <span class="about-number">02</span>
-            <div class="about-chapter-content">
-              <h3 data-i18n="about.ch2title">Our Mission</h3>
-              <p data-i18n="about.ch2body">“Create innovative, reliable and flexible technology products and services, continuously evolving to challenge the market and guarantee seamless stakeholder satisfaction.”</p>
+          <div id="aboutChapters">
+            <div class="about-chapter" data-animate="fade-up" data-delay="0">
+              <span class="about-number">01</span>
+              <div class="about-chapter-content">
+                <h3 data-i18n="about.ch1title">Who We Are</h3>
+                <p data-i18n="about.ch1body">Based in Fatuhada, Dili, Timor-Leste, Enzi Dev is a full-service ICT company offering technology solutions that help businesses, government institutions, NGOs and private organizations modernize, connect and grow.</p>
+              </div>
             </div>
-          </div>
-          <div class="about-chapter" data-animate="fade-up" data-delay="160">
-            <span class="about-number">03</span>
-            <div class="about-chapter-content">
-              <h3 data-i18n="about.ch3title">Our Vision</h3>
-              <p data-i18n="about.ch3body">To be the most reliable and trusted IT provider in Timor-Leste, recognized for responsiveness, innovation and service excellence.</p>
+            <div class="about-chapter" data-animate="fade-up" data-delay="80">
+              <span class="about-number">02</span>
+              <div class="about-chapter-content">
+                <h3 data-i18n="about.ch2title">Our Mission</h3>
+                <p data-i18n="about.ch2body">“Create innovative, reliable and flexible technology products and services, continuously evolving to challenge the market and guarantee seamless stakeholder satisfaction.”</p>
+              </div>
+            </div>
+            <div class="about-chapter" data-animate="fade-up" data-delay="160">
+              <span class="about-number">03</span>
+              <div class="about-chapter-content">
+                <h3 data-i18n="about.ch3title">Our Vision</h3>
+                <p data-i18n="about.ch3body">To be the most reliable and trusted IT provider in Timor-Leste, recognized for responsiveness, innovation and service excellence.</p>
+              </div>
             </div>
           </div>
           <div class="about-closing-rule"></div>
@@ -496,9 +503,14 @@
         </div>
         <div class="team-header-right" data-animate="fade-up" data-delay="100">
           <p data-i18n="team.sub">Certified engineers, developers and support specialists based in Dili — on call when you need us.</p>
+          <div class="posts-admin-bar team-admin-bar" id="teamAdminBar">
+            <button type="button" class="posts-admin-btn posts-admin-new" id="teamNewBtn" hidden>
+              <i class="fas fa-plus"></i> <span data-i18n="admin.newMember">New member</span>
+            </button>
+          </div>
         </div>
       </div>
-      <div class="team-grid">
+      <div class="team-grid" id="teamGrid">
         <button type="button" class="team-member" data-animate="fade-up" data-delay="0" onclick="openTeamModal(this)" data-name="Acacio" data-role="Director" data-bio="Acacio is the Director of Enzi Dev, an ICT, cybersecurity and software development company based in Dili, Timor-Leste." data-photo="images/team/Acacio.jpg" data-email="enzi23dev@gmail.com" data-phone="+670 76726974">
           <div class="team-photo-frame">
             <img src="images/team/Acacio.jpg" alt="Acacio" class="team-photo" loading="lazy">
@@ -1097,6 +1109,98 @@
           <div class="post-editor-actions">
             <button type="button" class="post-editor-cancel" id="postEditorCancel" data-i18n="posts.cancel">Cancel</button>
             <button type="submit" class="post-login-submit" id="postEditorSave" data-i18n="posts.save">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- About Chapter Editor Modal -->
+  <div class="post-modal" id="aboutEditorModal" role="dialog" aria-modal="true" aria-labelledby="aboutEditorTitle">
+    <div class="post-modal-overlay" id="aboutEditorOverlay"></div>
+    <div class="post-modal-dialog post-editor-dialog">
+      <button class="post-modal-close" id="aboutEditorClose" aria-label="Close"><i class="fas fa-xmark"></i></button>
+      <div class="post-editor-body">
+        <h2 id="aboutEditorTitle" data-i18n="admin.editChapter">Edit chapter</h2>
+        <form id="aboutEditorForm" novalidate>
+          <div class="post-editor-grid">
+            <div class="post-editor-field">
+              <label for="aboutFieldKey" data-i18n="admin.fieldKey">Key</label>
+              <input type="text" id="aboutFieldKey" name="key" required maxlength="40" placeholder="ch1">
+            </div>
+            <div class="post-editor-field">
+              <label for="aboutFieldOrder" data-i18n="admin.fieldOrder">Order</label>
+              <input type="number" id="aboutFieldOrder" name="order" min="0" max="99" value="1">
+            </div>
+            <div class="post-editor-field">
+              <label for="aboutFieldTitleEn" data-i18n="admin.fieldTitleEn">Title (English)</label>
+              <input type="text" id="aboutFieldTitleEn" name="titleEn" required maxlength="200">
+            </div>
+            <div class="post-editor-field">
+              <label for="aboutFieldTitleTet" data-i18n="admin.fieldTitleTet">Title (Tetum)</label>
+              <input type="text" id="aboutFieldTitleTet" name="titleTet" maxlength="200">
+            </div>
+            <div class="post-editor-field post-editor-span2">
+              <label for="aboutFieldBodyEn" data-i18n="admin.fieldBodyEn">Body (English)</label>
+              <textarea id="aboutFieldBodyEn" name="bodyEn" rows="5" required></textarea>
+            </div>
+            <div class="post-editor-field post-editor-span2">
+              <label for="aboutFieldBodyTet" data-i18n="admin.fieldBodyTet">Body (Tetum)</label>
+              <textarea id="aboutFieldBodyTet" name="bodyTet" rows="5"></textarea>
+            </div>
+          </div>
+          <p class="post-login-error" id="aboutEditorError" hidden></p>
+          <div class="post-editor-actions">
+            <button type="button" class="post-editor-cancel" id="aboutEditorCancel" data-i18n="posts.cancel">Cancel</button>
+            <button type="submit" class="post-login-submit" id="aboutEditorSave" data-i18n="posts.save">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Team Member Editor Modal -->
+  <div class="post-modal" id="teamEditorModal" role="dialog" aria-modal="true" aria-labelledby="teamEditorTitle">
+    <div class="post-modal-overlay" id="teamEditorOverlay"></div>
+    <div class="post-modal-dialog post-editor-dialog">
+      <button class="post-modal-close" id="teamEditorClose" aria-label="Close"><i class="fas fa-xmark"></i></button>
+      <div class="post-editor-body">
+        <h2 id="teamEditorTitle" data-i18n="admin.editMember">Edit member</h2>
+        <form id="teamEditorForm" novalidate>
+          <div class="post-editor-grid">
+            <div class="post-editor-field">
+              <label for="teamFieldName" data-i18n="admin.fieldName">Name</label>
+              <input type="text" id="teamFieldName" name="name" required maxlength="200">
+            </div>
+            <div class="post-editor-field">
+              <label for="teamFieldRole" data-i18n="admin.fieldRole">Role</label>
+              <input type="text" id="teamFieldRole" name="role" required maxlength="200">
+            </div>
+            <div class="post-editor-field">
+              <label for="teamFieldEmail" data-i18n="admin.fieldEmail">Email</label>
+              <input type="email" id="teamFieldEmail" name="email" maxlength="254">
+            </div>
+            <div class="post-editor-field">
+              <label for="teamFieldPhone" data-i18n="admin.fieldPhone">Phone</label>
+              <input type="text" id="teamFieldPhone" name="phone" maxlength="50" placeholder="+670 …">
+            </div>
+            <div class="post-editor-field">
+              <label for="teamFieldPhoto" data-i18n="admin.fieldPhoto">Photo path / URL</label>
+              <input type="text" id="teamFieldPhoto" name="photo" maxlength="500" placeholder="images/team/Name.jpg">
+            </div>
+            <div class="post-editor-field">
+              <label for="teamFieldOrder" data-i18n="admin.fieldOrder">Order</label>
+              <input type="number" id="teamFieldOrder" name="order" min="0" max="99" value="1">
+            </div>
+            <div class="post-editor-field post-editor-span2">
+              <label for="teamFieldBio" data-i18n="admin.fieldBio">Bio</label>
+              <textarea id="teamFieldBio" name="bio" rows="4" maxlength="2000"></textarea>
+            </div>
+          </div>
+          <p class="post-login-error" id="teamEditorError" hidden></p>
+          <div class="post-editor-actions">
+            <button type="button" class="post-editor-cancel" id="teamEditorCancel" data-i18n="posts.cancel">Cancel</button>
+            <button type="submit" class="post-login-submit" id="teamEditorSave" data-i18n="posts.save">Save</button>
           </div>
         </form>
       </div>

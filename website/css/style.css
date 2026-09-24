@@ -4409,3 +4409,69 @@ ul { list-style: none; margin: 0; padding: 0; }
   from { transform: scaleX(0); }
   to { transform: scaleX(1); }
 }
+
+/* ===== About + Team Admin ===== */
+.about-admin-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.about-admin-bar[hidden],
+.team-admin-bar .posts-admin-btn[hidden] {
+  display: none !important;
+}
+
+.about-chapter {
+  position: relative;
+}
+
+.about-chapter-actions {
+  top: 0.5rem;
+  right: 0;
+}
+
+.about-chapter:hover .about-chapter-actions,
+.about-chapter:focus-within .about-chapter-actions {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .about-chapter-actions { opacity: 1; }
+}
+
+.team-member {
+  position: relative;
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.team-member-cell {
+  position: relative;
+}
+
+.team-member-cell:hover .team-card-actions,
+.team-member-cell:focus-within .team-card-actions {
+  opacity: 1;
+}
+
+.team-card-actions {
+  top: 0.75rem;
+  right: 0.75rem;
+}
+
+@media (hover: none) {
+  .team-card-actions { opacity: 1; }
+}
+
+.team-admin-bar {
+  margin-top: 1rem;
+  justify-content: flex-end;
+}

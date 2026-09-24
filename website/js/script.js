@@ -370,7 +370,27 @@ document.addEventListener('DOMContentLoaded', function () {
       'posts.saved': 'Post saved',
       'posts.deleted': 'Post deleted',
       'posts.edit': 'Edit',
-      'posts.loadFailed': 'Could not load posts.'
+      'posts.loadFailed': 'Could not load posts.',
+      'admin.newChapter': 'New chapter',
+      'admin.editChapter': 'Edit chapter',
+      'admin.newMember': 'New member',
+      'admin.editMember': 'Edit member',
+      'admin.fieldKey': 'Key',
+      'admin.fieldOrder': 'Order',
+      'admin.fieldTitleEn': 'Title (English)',
+      'admin.fieldTitleTet': 'Title (Tetum)',
+      'admin.fieldBodyEn': 'Body (English)',
+      'admin.fieldBodyTet': 'Body (Tetum)',
+      'admin.fieldName': 'Name',
+      'admin.fieldRole': 'Role',
+      'admin.fieldEmail': 'Email',
+      'admin.fieldPhone': 'Phone',
+      'admin.fieldPhoto': 'Photo path / URL',
+      'admin.fieldBio': 'Bio',
+      'admin.deleteChapter': 'Delete this chapter?',
+      'admin.deleteMember': 'Delete this team member?',
+      'admin.chapterSaved': 'Chapter saved',
+      'admin.memberSaved': 'Member saved'
     },
     tet: {
       'hero.badge': 'Solusaun ICT & Digitál ba Empreza',
@@ -483,7 +503,27 @@ document.addEventListener('DOMContentLoaded', function () {
       'posts.saved': 'Post grava ona',
       'posts.deleted': 'Post hapus ona',
       'posts.edit': 'Hatadikin',
-      'posts.loadFailed': 'La konsege karrega post sira.'
+      'posts.loadFailed': 'La konsege karrega post sira.',
+      'admin.newChapter': 'Kapitulu foun',
+      'admin.editChapter': 'Hatadikin kapitulu',
+      'admin.newMember': 'Ema foun',
+      'admin.editMember': 'Hatadikin ema',
+      'admin.fieldKey': 'Chave',
+      'admin.fieldOrder': 'Ordem',
+      'admin.fieldTitleEn': 'Titulu (Inglis)',
+      'admin.fieldTitleTet': 'Titulu (Tetum)',
+      'admin.fieldBodyEn': 'Konteúdu (Inglis)',
+      'admin.fieldBodyTet': 'Konteúdu (Tetum)',
+      'admin.fieldName': 'Naran',
+      'admin.fieldRole': 'Kargu',
+      'admin.fieldEmail': 'Email',
+      'admin.fieldPhone': 'Telefone',
+      'admin.fieldPhoto': 'Caminhu / URL imajen',
+      'admin.fieldBio': 'Biografia',
+      'admin.deleteChapter': 'Hapus kapitulu ida ne’e?',
+      'admin.deleteMember': 'Hapus ema ida ne’e?',
+      'admin.chapterSaved': 'Kapitulu grava ona',
+      'admin.memberSaved': 'Ema grava ona'
     }
   };
 
@@ -530,6 +570,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     if (typeof updatePostModalChrome === 'function') {
       updatePostModalChrome();
+    }
+    if (typeof window.renderAbout === 'function') {
+      window.renderAbout();
+    }
+    if (typeof window.renderTeam === 'function') {
+      window.renderTeam();
     }
   }
 
@@ -598,6 +644,8 @@ document.getElementById('teamModalClose').addEventListener('click', closeTeamMod
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') {
     if (typeof closePostEditor === 'function') closePostEditor();
+    if (typeof closeAboutEditor === 'function') closeAboutEditor();
+    if (typeof closeTeamEditor === 'function') closeTeamEditor();
     closeTeamModal();
     closeActivityGallery();
     closeSignupModal();
@@ -1247,11 +1295,17 @@ function closeSignupModal() {
     return apiFetch(API_ME).then(function (data) {
       state.isAdmin = !!(data.authenticated && data.user && data.user.isStaff);
       state.username = state.isAdmin && data.user ? data.user.username : null;
+      window.EnziIsAdmin = function () { return state.isAdmin; };
+      window.EnziAdminUser = function () { return state.username; };
+      document.dispatchEvent(new CustomEvent('enzi-auth-changed'));
       renderAdminBar();
       renderPosts();
     }).catch(function () {
       state.isAdmin = false;
       state.username = null;
+      window.EnziIsAdmin = function () { return false; };
+      window.EnziAdminUser = function () { return null; };
+      document.dispatchEvent(new CustomEvent('enzi-auth-changed'));
       renderAdminBar();
     });
   }
@@ -1508,3 +1562,548 @@ function closeSignupModal() {
     boot();
   }
 })();
+
+// ===== About + Team Section (dynamic + admin CRUD) =====
+(function () {
+  var API_ABOUT = '/api/about/';
+  var API_TEAM = '/api/team/';
+  var API_ME = '/api/auth/me/';
+
+  var about = { chapters: [], editingId: null, loaded: false };
+  var team = { members: [], editingId: null, loaded: false, isAdmin: false, username: null };
+
+  function t(key) {
+    if (window.EnziI18n && typeof window.EnziI18n.t === 'function') {
+      return window.EnziI18n.t(key);
+    }
+    return key;
+  }
+
+  function isTet() {
+    return window.EnziI18n && window.EnziI18n.lang === 'tet';
+  }
+
+  function escapeHtml(str) {
+    return String(str == null ? '' : str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function getCsrfToken() {
+    var match = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
+    return match ? decodeURIComponent(match[1]) : '';
+  }
+
+  function apiFetch(url, options) {
+    options = options || {};
+    options.credentials = 'same-origin';
+    options.headers = options.headers || {};
+    if (options.body && !(options.body instanceof FormData)) {
+      options.headers['Content-Type'] = options.headers['Content-Type'] || 'application/json';
+    }
+    var method = (options.method || 'GET').toUpperCase();
+    if (method !== 'GET' && method !== 'HEAD') {
+      options.headers['X-CSRFToken'] = getCsrfToken();
+    }
+    return fetch(url, options).then(function (res) {
+      return res.json().catch(function () { return {}; }).then(function (data) {
+        data.__status = res.status;
+        data.__ok = res.ok;
+        return data;
+      });
+    });
+  }
+
+  function isAdmin() {
+    if (typeof window.EnziIsAdmin === 'function') return window.EnziIsAdmin();
+    return team.isAdmin;
+  }
+
+  function adminUsername() {
+    if (typeof window.EnziAdminUser === 'function') return window.EnziAdminUser();
+    return team.username;
+  }
+
+  function observeDynamic(root) {
+    var els = (root || document).querySelectorAll('[data-animate]:not(.animated)');
+    if (typeof IntersectionObserver === 'undefined') {
+      els.forEach(function (el) { el.classList.add('animated'); });
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          var delay = entry.target.getAttribute('data-delay') || 0;
+          setTimeout(function () {
+            entry.target.classList.add('animated');
+          }, parseInt(delay, 10) || 0);
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+    els.forEach(function (el) { io.observe(el); });
+  }
+
+  function showChapterError(msg) {
+    var err = document.getElementById('aboutEditorError');
+    if (!err) return;
+    err.textContent = msg;
+    err.hidden = false;
+  }
+
+  function showTeamError(msg) {
+    var err = document.getElementById('teamEditorError');
+    if (!err) return;
+    err.textContent = msg;
+    err.hidden = false;
+  }
+
+  // ---- About ----
+  function chapterBody(c) {
+    return isTet() ? (c.bodyTet || c.bodyEn || '') : (c.bodyEn || '');
+  }
+
+  function chapterTitle(c) {
+    return isTet() ? (c.titleTet || c.titleEn || '') : (c.titleEn || '');
+  }
+
+  function renderAbout() {
+    var wrap = document.getElementById('aboutChapters');
+    var bar = document.getElementById('aboutAdminBar');
+    var newBtn = document.getElementById('aboutNewBtn');
+    if (bar) bar.hidden = !isAdmin();
+    if (newBtn) newBtn.hidden = !isAdmin();
+    if (!wrap || !about.loaded || about.chapters.length === 0) return;
+
+    var html = about.chapters.map(function (c, i) {
+      var n = String(i + 1).padStart(2, '0');
+      var delay = i * 80;
+      var actions = isAdmin()
+        ? '<div class="post-card-actions about-chapter-actions">' +
+            '<button type="button" class="post-card-action post-card-edit" data-action="edit" data-id="' + escapeHtml(c.id) + '" title="' + escapeHtml(t('posts.edit')) + '"><i class="fas fa-pen"></i></button>' +
+            '<button type="button" class="post-card-action post-card-delete" data-action="delete" data-id="' + escapeHtml(c.id) + '" title="' + escapeHtml(t('posts.delete')) + '"><i class="fas fa-trash"></i></button>' +
+          '</div>'
+        : '';
+      return (
+        '<div class="about-chapter" data-animate="fade-up" data-delay="' + delay + '" data-chapter-id="' + escapeHtml(c.id) + '">' +
+          '<span class="about-number">' + n + '</span>' +
+          '<div class="about-chapter-content">' +
+            '<h3>' + escapeHtml(chapterTitle(c)) + '</h3>' +
+            '<p>' + escapeHtml(chapterBody(c)) + '</p>' +
+          '</div>' +
+          actions +
+        '</div>'
+      );
+    }).join('');
+
+    wrap.innerHTML = html;
+    wrap.querySelectorAll('.about-chapter-action, .post-card-action').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        e.preventDefault();
+        if (!isAdmin()) return;
+        var id = btn.getAttribute('data-id');
+        var action = btn.getAttribute('data-action');
+        if (action === 'edit') openAboutEditor(id);
+        else if (action === 'delete') deleteAboutChapter(id);
+      });
+    });
+    observeDynamic(wrap);
+  }
+
+  function loadAbout() {
+    return apiFetch(API_ABOUT).then(function (data) {
+      about.chapters = Array.isArray(data.chapters) ? data.chapters : [];
+      about.loaded = true;
+      renderAbout();
+    }).catch(function () {
+      about.chapters = [];
+      about.loaded = false;
+      renderAbout();
+    });
+  }
+
+  function openAboutEditor(id) {
+    if (!isAdmin()) return;
+    var modal = document.getElementById('aboutEditorModal');
+    if (!modal) return;
+
+    about.editingId = id != null && id !== '' ? String(id) : null;
+    var title = document.getElementById('aboutEditorTitle');
+    var err = document.getElementById('aboutEditorError');
+    if (err) { err.hidden = true; err.textContent = ''; }
+
+    var fields = {
+      key: document.getElementById('aboutFieldKey'),
+      order: document.getElementById('aboutFieldOrder'),
+      titleEn: document.getElementById('aboutFieldTitleEn'),
+      titleTet: document.getElementById('aboutFieldTitleTet'),
+      bodyEn: document.getElementById('aboutFieldBodyEn'),
+      bodyTet: document.getElementById('aboutFieldBodyTet')
+    };
+
+    if (about.editingId) {
+      if (title) title.textContent = t('admin.editChapter');
+      apiFetch(API_ABOUT + about.editingId + '/').then(function (data) {
+        if (!data.chapter) return;
+        var idx = about.chapters.findIndex(function (c) { return String(c.id) === String(about.editingId); });
+        if (idx >= 0) about.chapters[idx] = data.chapter;
+        fillAboutEditor(fields, data.chapter);
+      }).catch(function () {
+        var chapter = about.chapters.find(function (c) { return String(c.id) === String(about.editingId); });
+        if (chapter) fillAboutEditor(fields, chapter);
+      });
+    } else {
+      if (title) title.textContent = t('admin.newChapter');
+      if (fields.key) fields.key.value = 'ch' + (about.chapters.length + 1);
+      if (fields.order) fields.order.value = String(about.chapters.length + 1);
+      if (fields.titleEn) fields.titleEn.value = '';
+      if (fields.titleTet) fields.titleTet.value = '';
+      if (fields.bodyEn) fields.bodyEn.value = '';
+      if (fields.bodyTet) fields.bodyTet.value = '';
+    }
+
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    if (fields.titleEn) fields.titleEn.focus();
+  }
+
+  function fillAboutEditor(fields, chapter) {
+    if (fields.key) fields.key.value = chapter.key || '';
+    if (fields.order) fields.order.value = String(chapter.order != null ? chapter.order : 0);
+    if (fields.titleEn) fields.titleEn.value = chapter.titleEn || '';
+    if (fields.titleTet) fields.titleTet.value = chapter.titleTet || '';
+    if (fields.bodyEn) fields.bodyEn.value = chapter.bodyEn || '';
+    if (fields.bodyTet) fields.bodyTet.value = chapter.bodyTet || '';
+  }
+
+  function closeAboutEditor() {
+    var modal = document.getElementById('aboutEditorModal');
+    if (modal) modal.classList.remove('active');
+    about.editingId = null;
+    if (!document.querySelector('.post-modal.active, .activity-gallery-modal.active, .activity-share-modal.active, .activity-signup-modal.active, .team-modal.active')) {
+      document.body.style.overflow = '';
+    }
+  }
+
+  function deleteAboutChapter(id) {
+    if (!isAdmin()) return;
+    if (!window.confirm(t('admin.deleteChapter'))) return;
+    apiFetch(API_ABOUT + id + '/', { method: 'DELETE' }).then(function (data) {
+      if (data.success) return loadAbout();
+      window.alert(data.message || 'Delete failed');
+    }).catch(function () {
+      window.alert('Delete failed');
+    });
+  }
+
+  function bindAboutEditor() {
+    var newBtn = document.getElementById('aboutNewBtn');
+    if (newBtn) newBtn.addEventListener('click', function () { openAboutEditor(null); });
+
+    var closeBtn = document.getElementById('aboutEditorClose');
+    if (closeBtn) closeBtn.addEventListener('click', closeAboutEditor);
+    var cancel = document.getElementById('aboutEditorCancel');
+    if (cancel) cancel.addEventListener('click', closeAboutEditor);
+    var overlay = document.getElementById('aboutEditorOverlay');
+    if (overlay) overlay.addEventListener('click', closeAboutEditor);
+
+    var form = document.getElementById('aboutEditorForm');
+    if (form) {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!isAdmin()) return;
+
+        var payload = {
+          key: (document.getElementById('aboutFieldKey') || {}).value || '',
+          order: parseInt((document.getElementById('aboutFieldOrder') || {}).value, 10) || 0,
+          titleEn: (document.getElementById('aboutFieldTitleEn') || {}).value || '',
+          titleTet: (document.getElementById('aboutFieldTitleTet') || {}).value || '',
+          bodyEn: (document.getElementById('aboutFieldBodyEn') || {}).value || '',
+          bodyTet: (document.getElementById('aboutFieldBodyTet') || {}).value || ''
+        };
+
+        if (!payload.key.trim() || !payload.titleEn.trim() || !payload.bodyEn.trim()) {
+          showChapterError(t('admin.fieldKey') + ' / ' + t('admin.fieldTitleEn') + ' / ' + t('admin.fieldBodyEn'));
+          return;
+        }
+
+        var saveBtn = document.getElementById('aboutEditorSave');
+        if (saveBtn) saveBtn.disabled = true;
+
+        var isEdit = !!about.editingId;
+        var url = isEdit ? API_ABOUT + about.editingId + '/' : API_ABOUT;
+        var method = isEdit ? 'PUT' : 'POST';
+
+        apiFetch(url, { method: method, body: JSON.stringify(payload) })
+          .then(function (data) {
+            if (saveBtn) saveBtn.disabled = false;
+            if (data.success) {
+              closeAboutEditor();
+              return loadAbout();
+            }
+            var msgs = data.errors
+              ? Object.keys(data.errors).map(function (k) { return data.errors[k]; }).join(' ')
+              : (data.message || 'Error');
+            showChapterError(msgs);
+          })
+          .catch(function () {
+            if (saveBtn) saveBtn.disabled = false;
+            showChapterError('Error saving chapter');
+          });
+      });
+    }
+  }
+
+  // ---- Team ----
+  function memberCardHtml(m, index) {
+    var delay = (index % 4) * 80;
+    var photo = m.photo || 'images/team/' + m.name + '.jpg';
+    var adminActions = isAdmin()
+      ? '<div class="post-card-actions team-card-actions">' +
+          '<button type="button" class="post-card-action post-card-edit" data-action="edit" data-id="' + escapeHtml(m.id) + '" title="' + escapeHtml(t('posts.edit')) + '"><i class="fas fa-pen"></i></button>' +
+          '<button type="button" class="post-card-action post-card-delete" data-action="delete" data-id="' + escapeHtml(m.id) + '" title="' + escapeHtml(t('posts.delete')) + '"><i class="fas fa-trash"></i></button>' +
+        '</div>'
+      : '';
+    return (
+      '<div class="team-member-cell" data-animate="fade-up" data-delay="' + delay + '">' +
+        adminActions +
+        '<button type="button" class="team-member" ' +
+          'data-member-id="' + escapeHtml(m.id) + '" ' +
+          'data-name="' + escapeHtml(m.name) + '" data-role="' + escapeHtml(m.role) + '" ' +
+          'data-bio="' + escapeHtml(m.bio || '') + '" data-photo="' + escapeHtml(photo) + '" ' +
+          'data-email="' + escapeHtml(m.email || '') + '" data-phone="' + escapeHtml(m.phone || '') + '">' +
+          '<div class="team-photo-frame">' +
+            '<img src="' + escapeHtml(photo) + '" alt="' + escapeHtml(m.name) + '" class="team-photo" loading="lazy">' +
+            '<div class="team-photo-bar"></div>' +
+            '<div class="team-photo-overlay"><span class="team-view-chip" data-i18n="team.viewProfile">View profile</span></div>' +
+          '</div>' +
+          '<h3>' + escapeHtml(m.name) + '</h3>' +
+          '<p class="team-role">' + escapeHtml(m.role) + '</p>' +
+          '<p class="team-bio">' + escapeHtml(m.bio || '') + '</p>' +
+        '</button>' +
+      '</div>'
+    );
+  }
+
+  function renderTeam() {
+    var grid = document.getElementById('teamGrid');
+    var newBtn = document.getElementById('teamNewBtn');
+    if (newBtn) newBtn.hidden = !isAdmin();
+    if (!grid || !team.loaded || team.members.length === 0) return;
+
+    grid.innerHTML = team.members.map(memberCardHtml).join('');
+
+    grid.querySelectorAll('.team-member').forEach(function (card) {
+      card.addEventListener('click', function (e) {
+        if (e.target.closest('.team-card-actions')) return;
+        openTeamModal(card);
+      });
+    });
+
+    grid.querySelectorAll('.team-card-actions .post-card-action').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        e.preventDefault();
+        if (!isAdmin()) return;
+        var id = btn.getAttribute('data-id');
+        var action = btn.getAttribute('data-action');
+        if (action === 'edit') openTeamEditor(id);
+        else if (action === 'delete') deleteTeamMember(id);
+      });
+    });
+
+    observeDynamic(grid);
+  }
+
+  function loadTeam() {
+    return apiFetch(API_TEAM).then(function (data) {
+      team.members = Array.isArray(data.team) ? data.team : [];
+      team.loaded = true;
+      renderTeam();
+    }).catch(function () {
+      team.members = [];
+      team.loaded = false;
+      renderTeam();
+    });
+  }
+
+  function openTeamEditor(id) {
+    if (!isAdmin()) return;
+    var modal = document.getElementById('teamEditorModal');
+    if (!modal) return;
+
+    team.editingId = id != null && id !== '' ? String(id) : null;
+    var title = document.getElementById('teamEditorTitle');
+    var err = document.getElementById('teamEditorError');
+    if (err) { err.hidden = true; err.textContent = ''; }
+
+    var fields = {
+      name: document.getElementById('teamFieldName'),
+      role: document.getElementById('teamFieldRole'),
+      email: document.getElementById('teamFieldEmail'),
+      phone: document.getElementById('teamFieldPhone'),
+      photo: document.getElementById('teamFieldPhoto'),
+      order: document.getElementById('teamFieldOrder'),
+      bio: document.getElementById('teamFieldBio')
+    };
+
+    if (team.editingId) {
+      if (title) title.textContent = t('admin.editMember');
+      apiFetch(API_TEAM + team.editingId + '/').then(function (data) {
+        if (!data.member) return;
+        var idx = team.members.findIndex(function (m) { return String(m.id) === String(team.editingId); });
+        if (idx >= 0) team.members[idx] = data.member;
+        fillTeamEditor(fields, data.member);
+      }).catch(function () {
+        var member = team.members.find(function (m) { return String(m.id) === String(team.editingId); });
+        if (member) fillTeamEditor(fields, member);
+      });
+    } else {
+      if (title) title.textContent = t('admin.newMember');
+      Object.keys(fields).forEach(function (k) {
+        var el = fields[k];
+        if (!el) return;
+        if (k === 'order') el.value = String(team.members.length + 1);
+        else if (k === 'phone') el.value = '+670 76726974';
+        else if (k === 'email') el.value = 'enzi23dev@gmail.com';
+        else el.value = '';
+      });
+    }
+
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    if (fields.name) fields.name.focus();
+  }
+
+  function fillTeamEditor(fields, member) {
+    if (fields.name) fields.name.value = member.name || '';
+    if (fields.role) fields.role.value = member.role || '';
+    if (fields.email) fields.email.value = member.email || '';
+    if (fields.phone) fields.phone.value = member.phone || '';
+    if (fields.photo) fields.photo.value = member.photo || '';
+    if (fields.order) fields.order.value = String(member.order != null ? member.order : 0);
+    if (fields.bio) fields.bio.value = member.bio || '';
+  }
+
+  function closeTeamEditor() {
+    var modal = document.getElementById('teamEditorModal');
+    if (modal) modal.classList.remove('active');
+    team.editingId = null;
+    if (!document.querySelector('.post-modal.active, .activity-gallery-modal.active, .activity-share-modal.active, .activity-signup-modal.active, .team-modal.active')) {
+      document.body.style.overflow = '';
+    }
+  }
+
+  function deleteTeamMember(id) {
+    if (!isAdmin()) return;
+    if (!window.confirm(t('admin.deleteMember'))) return;
+    apiFetch(API_TEAM + id + '/', { method: 'DELETE' }).then(function (data) {
+      if (data.success) return loadTeam();
+      window.alert(data.message || 'Delete failed');
+    }).catch(function () {
+      window.alert('Delete failed');
+    });
+  }
+
+  function bindTeamEditor() {
+    var newBtn = document.getElementById('teamNewBtn');
+    if (newBtn) newBtn.addEventListener('click', function () { openTeamEditor(null); });
+
+    var closeBtn = document.getElementById('teamEditorClose');
+    if (closeBtn) closeBtn.addEventListener('click', closeTeamEditor);
+    var cancel = document.getElementById('teamEditorCancel');
+    if (cancel) cancel.addEventListener('click', closeTeamEditor);
+    var overlay = document.getElementById('teamEditorOverlay');
+    if (overlay) overlay.addEventListener('click', closeTeamEditor);
+
+    var form = document.getElementById('teamEditorForm');
+    if (form) {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!isAdmin()) return;
+
+        var payload = {
+          name: (document.getElementById('teamFieldName') || {}).value || '',
+          role: (document.getElementById('teamFieldRole') || {}).value || '',
+          email: (document.getElementById('teamFieldEmail') || {}).value || '',
+          phone: (document.getElementById('teamFieldPhone') || {}).value || '',
+          photo: (document.getElementById('teamFieldPhoto') || {}).value || '',
+          order: parseInt((document.getElementById('teamFieldOrder') || {}).value, 10) || 0,
+          bio: (document.getElementById('teamFieldBio') || {}).value || ''
+        };
+
+        if (!payload.name.trim() || !payload.role.trim()) {
+          showTeamError(t('admin.fieldName') + ' / ' + t('admin.fieldRole'));
+          return;
+        }
+
+        var saveBtn = document.getElementById('teamEditorSave');
+        if (saveBtn) saveBtn.disabled = true;
+
+        var isEdit = !!team.editingId;
+        var url = isEdit ? API_TEAM + team.editingId + '/' : API_TEAM;
+        var method = isEdit ? 'PUT' : 'POST';
+
+        apiFetch(url, { method: method, body: JSON.stringify(payload) })
+          .then(function (data) {
+            if (saveBtn) saveBtn.disabled = false;
+            if (data.success) {
+              closeTeamEditor();
+              return loadTeam();
+            }
+            var msgs = data.errors
+              ? Object.keys(data.errors).map(function (k) { return data.errors[k]; }).join(' ')
+              : (data.message || 'Error');
+            showTeamError(msgs);
+          })
+          .catch(function () {
+            if (saveBtn) saveBtn.disabled = false;
+            showTeamError('Error saving member');
+          });
+      });
+    }
+  }
+
+  window.closeAboutEditor = closeAboutEditor;
+  window.closeTeamEditor = closeTeamEditor;
+  window.renderAbout = renderAbout;
+  window.renderTeam = renderTeam;
+
+  function refreshAuth() {
+    return apiFetch(API_ME).then(function (data) {
+      team.isAdmin = !!(data.authenticated && data.user && data.user.isStaff);
+      team.username = team.isAdmin && data.user ? data.user.username : null;
+      renderAbout();
+      renderTeam();
+    }).catch(function () {
+      team.isAdmin = false;
+      team.username = null;
+      renderAbout();
+      renderTeam();
+    });
+  }
+
+  document.addEventListener('enzi-auth-changed', function () {
+    renderAbout();
+    renderTeam();
+  });
+
+  function boot() {
+    bindAboutEditor();
+    bindTeamEditor();
+    refreshAuth().then(function () {
+      return Promise.all([loadAbout(), loadTeam()]);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+})();
+
