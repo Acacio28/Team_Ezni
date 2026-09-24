@@ -88,14 +88,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // ===== Mobile Menu Toggle =====
   var mobileToggle = document.getElementById('mobile-toggle');
-  var navList = document.getElementById('nav-list');
+  var mobilePanel = document.getElementById('nav-list');
 
-  if (mobileToggle && navList) {
+  function closeMobileMenu() {
+    if (!mobilePanel || !mobileToggle) return;
+    mobilePanel.classList.remove('active');
+    var icon = mobileToggle.querySelector('i');
+    icon.classList.remove('fa-xmark');
+    icon.classList.add('fa-bars');
+  }
+
+  if (mobileToggle && mobilePanel) {
     mobileToggle.addEventListener('click', function (e) {
       e.stopPropagation();
-      navList.classList.toggle('active');
+      mobilePanel.classList.toggle('active');
       var icon = mobileToggle.querySelector('i');
-      if (navList.classList.contains('active')) {
+      if (mobilePanel.classList.contains('active')) {
         icon.classList.remove('fa-bars');
         icon.classList.add('fa-xmark');
       } else {
@@ -104,29 +112,29 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
 
-    navList.querySelectorAll('.nav-link').forEach(function (link) {
-      link.addEventListener('click', function () {
-        navList.classList.remove('active');
-        var icon = mobileToggle.querySelector('i');
-        icon.classList.remove('fa-xmark');
-        icon.classList.add('fa-bars');
-      });
+    mobilePanel.querySelectorAll('.mobile-link').forEach(function (link) {
+      link.addEventListener('click', closeMobileMenu);
     });
 
     document.addEventListener('click', function (e) {
-      if (!navList.contains(e.target) && !mobileToggle.contains(e.target)) {
-        navList.classList.remove('active');
-        var icon = mobileToggle.querySelector('i');
-        icon.classList.remove('fa-xmark');
-        icon.classList.add('fa-bars');
+      if (!mobilePanel.contains(e.target) && !mobileToggle.contains(e.target)) {
+        closeMobileMenu();
       }
+    });
+  }
+
+  // Mobile language toggle
+  var mobileLangToggle = document.getElementById('mobile-lang-toggle');
+  if (mobileLangToggle) {
+    mobileLangToggle.addEventListener('click', function () {
+      var newLang = currentLang === 'en' ? 'tet' : 'en';
+      switchLanguage(newLang);
     });
   }
 
   // ===== Header Scroll Effect =====
   var header = document.getElementById('header');
   var backToTop = document.getElementById('backToTop');
-  var sections = document.querySelectorAll('section[id]');
 
   function onScroll() {
     var scrollY = window.pageYOffset;
@@ -138,17 +146,6 @@ document.addEventListener('DOMContentLoaded', function () {
     if (backToTop) {
       backToTop.classList.toggle('show', scrollY > 400);
     }
-
-    // Active nav link based on scroll position
-    sections.forEach(function (section) {
-      var top = section.offsetTop - 120;
-      var bottom = top + section.offsetHeight;
-      var id = section.getAttribute('id');
-      var link = document.querySelector('.nav-link[href="#' + id + '"]');
-      if (link) {
-        link.classList.toggle('active', scrollY >= top && scrollY < bottom);
-      }
-    });
   }
 
   window.addEventListener('scroll', onScroll);
@@ -297,7 +294,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'nav.team': 'Team',
       'nav.contact': 'Contact',
       'nav.bitdefender': 'Bitdefender',
-      'nav.shop': 'Shop'
+      'nav.shop': 'Shop',
+      'nav.language': 'English'
     },
     tet: {
       'hero.badge': 'Solusaun ICT & Digitál ba Empreza',
@@ -334,7 +332,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'nav.team': 'Ekipa',
       'nav.contact': 'Kontaktu',
       'nav.bitdefender': 'Bitdefender',
-      'nav.shop': 'Loja'
+      'nav.shop': 'Loja',
+      'nav.language': 'Tetum'
     }
   };
 
@@ -355,9 +354,6 @@ document.addEventListener('DOMContentLoaded', function () {
       if (translations[lang] && translations[lang][key]) {
         el.innerHTML = translations[lang][key];
       }
-    });
-    document.querySelectorAll('.lang-btn').forEach(function (btn) {
-      btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
     });
     var langCode = document.getElementById('lang-code');
     if (langCode) {

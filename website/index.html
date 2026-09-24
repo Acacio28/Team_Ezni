@@ -42,39 +42,51 @@
 
   <!-- Header -->
   <header class="header" id="header">
-    <div class="container">
-      <div class="nav-container">
-        <a href="#home" class="logo">
-          <div class="logo-icon">
-            <i class="fas fa-code"></i>
-          </div>
-          <div class="logo-text">
-            <span class="logo-name">Enzi Dev</span>
-            <span class="logo-sub">Creative Developer</span>
-          </div>
-        </a>
-        <ul class="nav-list" id="nav-list">
-          <li><a href="#home" class="nav-link active" data-i18n="nav.home">Home</a></li>
-          <li><a href="#about" class="nav-link" data-i18n="nav.about">About</a></li>
-          <li><a href="#services" class="nav-link" data-i18n="nav.services">Services</a></li>
-          <li><a href="#services" class="nav-link" data-i18n="nav.bitdefender">Bitdefender</a></li>
-          <li><a href="#projects" class="nav-link" data-i18n="nav.projects">Projects</a></li>
-          <li><a href="#team" class="nav-link" data-i18n="nav.team">Team</a></li>
-          <li><a href="#contact" class="nav-link" data-i18n="nav.contact">Contact</a></li>
-          <li><a href="#contact" class="nav-link nav-link-red" data-i18n="nav.shop">Loja</a></li>
-        </ul>
-        <div class="nav-right">
-          <button class="lang-switcher" id="lang-toggle" aria-label="Toggle language">
-            <i class="fas fa-globe lang-icon"></i>
-            <span class="lang-code" id="lang-code">EN</span>
-          </button>
-          <a href="#pricing" class="nav-cart" aria-label="Shop">
-            <i class="fas fa-shopping-cart"></i>
-          </a>
-          <button class="mobile-toggle" id="mobile-toggle" aria-label="Toggle menu">
-            <i class="fas fa-bars"></i>
-          </button>
+    <div class="nav-inner">
+      <a href="#home" class="logo">
+        <div class="logo-mark">E</div>
+        <div class="logo-wordmark">
+          <span class="logo-name">Enzi<span class="logo-dot">.</span></span>
+          <span class="logo-tag">Creative Developer</span>
         </div>
+      </a>
+      <nav class="nav-menu">
+        <a href="#home" class="nav-link" data-i18n="nav.home">Home</a>
+        <a href="#about" class="nav-link" data-i18n="nav.about">About</a>
+        <a href="#services" class="nav-link" data-i18n="nav.services">Services</a>
+        <a href="#services" class="nav-link" data-i18n="nav.bitdefender">Bitdefender</a>
+        <a href="#projects" class="nav-link" data-i18n="nav.projects">Projects</a>
+        <a href="#team" class="nav-link" data-i18n="nav.team">Team</a>
+        <a href="#contact" class="nav-link" data-i18n="nav.contact">Contact</a>
+        <a href="#pricing" class="nav-link nav-link-red" data-i18n="nav.shop">Shop</a>
+      </nav>
+      <div class="nav-actions">
+        <button class="lang-pill" id="lang-toggle" aria-label="Toggle language">
+          <i class="fas fa-globe"></i>
+          <span id="lang-code">EN</span>
+        </button>
+        <a href="#pricing" class="nav-circle" aria-label="Cart">
+          <i class="fas fa-shopping-cart"></i>
+        </a>
+        <button class="nav-circle nav-hamburger" id="mobile-toggle" aria-label="Menu">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </div>
+    <div class="mobile-panel" id="nav-list">
+      <div class="mobile-panel-inner">
+        <a href="#home" class="mobile-link" data-i18n="nav.home">Home</a>
+        <a href="#about" class="mobile-link" data-i18n="nav.about">About</a>
+        <a href="#services" class="mobile-link" data-i18n="nav.services">Services</a>
+        <a href="#services" class="mobile-link" data-i18n="nav.bitdefender">Bitdefender</a>
+        <a href="#projects" class="mobile-link" data-i18n="nav.projects">Projects</a>
+        <a href="#team" class="mobile-link" data-i18n="nav.team">Team</a>
+        <a href="#contact" class="mobile-link" data-i18n="nav.contact">Contact</a>
+        <a href="#pricing" class="mobile-link" data-i18n="nav.shop">Shop</a>
+        <button class="mobile-lang" id="mobile-lang-toggle">
+          <i class="fas fa-globe"></i>
+          <span data-i18n="nav.language">English</span>
+        </button>
       </div>
     </div>
   </header>
@@ -704,7 +716,7 @@
       <div class="footer-grid">
         <div class="footer-about">
           <a href="#home" class="footer-logo">
-            <div class="logo-icon" style="width: 35px; height: 35px; font-size: 1rem;">
+            <div class="logo-mark" style="width: 35px; height: 35px; font-size: 1rem;">
               <i class="fas fa-code"></i>
             </div>
             <span>Enzi Dev</span>
