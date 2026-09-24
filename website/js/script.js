@@ -968,12 +968,22 @@ function closeSignupModal() {
     }
   }
 
+  function wantsAdminLogin() {
+    try {
+      return new URLSearchParams(window.location.search).has('admin') ||
+        window.location.hash === '#admin';
+    } catch (err) {
+      return false;
+    }
+  }
+
   function renderAdminBar() {
     var loginBtn = document.getElementById('postsLoginBtn');
     var logoutBtn = document.getElementById('postsLogoutBtn');
     var newBtn = document.getElementById('postsNewBtn');
     var userEl = document.getElementById('postsAdminUser');
-    if (loginBtn) loginBtn.hidden = state.isAdmin;
+    // Public: never show Admin button. Show only if already staff OR ?admin/#admin.
+    if (loginBtn) loginBtn.hidden = state.isAdmin || !wantsAdminLogin();
     if (logoutBtn) logoutBtn.hidden = !state.isAdmin;
     if (newBtn) newBtn.hidden = !state.isAdmin;
     if (userEl) {
@@ -1318,6 +1328,12 @@ function closeSignupModal() {
           if (submit) submit.disabled = false;
           if (data.success) {
             closeLoginModal();
+            try {
+              var u = new URL(window.location.href);
+              u.searchParams.delete('admin');
+              if (u.hash === '#admin') u.hash = '';
+              window.history.replaceState({}, '', u.pathname + u.search + u.hash);
+            } catch (err) {}
             return refreshMe();
           }
           showLoginError(data.message || 'Login failed');
@@ -1585,7 +1601,12 @@ function closeSignupModal() {
   function boot() {
     bindPostsUi();
     refreshMe().then(function () {
-      return loadPosts();
+      return loadPosts().then(function () {
+        // Auto-open login only for admin entry URL (not public)
+        if (!state.isAdmin && wantsAdminLogin()) {
+          openLoginModal();
+        }
+      });
     });
   }
 
