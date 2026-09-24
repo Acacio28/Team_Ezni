@@ -2044,6 +2044,11 @@ ul { list-style: none; margin: 0; padding: 0; }
   transition: background 300ms, border-color 300ms, color 300ms;
 }
 
+.posts-admin-btn[hidden],
+.posts-admin-user[hidden] {
+  display: none !important;
+}
+
 .posts-admin-btn:hover {
   border-color: rgba(255, 255, 255, 0.45);
 }
