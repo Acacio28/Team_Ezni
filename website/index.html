@@ -318,6 +318,128 @@
     </div>
   </section>
 
+  <!-- Activities Section (kinos "in action" exact) -->
+  <section class="section-activities" id="activities">
+    <div class="activities-container">
+      <div class="activities-header">
+        <div class="activities-header-left" data-animate="fade-up" data-delay="0">
+          <p class="activities-label" data-i18n="activities.label">Activities &amp; Training</p>
+          <h2 class="activities-title">
+            <span data-i18n="activities.title">Enzi in action</span><span class="text-gold">.</span>
+          </h2>
+        </div>
+        <div class="activities-header-right" data-animate="fade-up" data-delay="100">
+          <p data-i18n="activities.sub">Training programs and project work across Timor-Leste — building skills, supplying equipment and delivering systems.</p>
+        </div>
+      </div>
+      <div class="activities-grid">
+        <!-- Card 1: no image -->
+        <article class="activity-card" data-animate="fade-up" data-delay="0">
+          <div class="activity-body">
+            <span class="activity-kind-inline">Project</span>
+            <h3>HRMS &amp; Inventory System</h3>
+            <p class="activity-desc">Custom human resources and inventory management system for a government ministry — tracking staff, assets and procurement in one platform.</p>
+            <div class="activity-meta">
+              <div class="activity-meta-items">
+                <span class="activity-meta-item"><i class="fas fa-calendar-days"></i> March 2026</span>
+                <span class="activity-meta-item"><i class="fas fa-map-pin"></i> Dili</span>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 2: with image -->
+        <article class="activity-card" data-animate="fade-up" data-delay="80">
+          <div class="activity-media">
+            <img src="https://images.pexels.com/photos/430208/pexels-photo-430208.jpeg?auto=compress&cs=tinysrgb&w=900" alt="CCTV Supply & Installation" loading="lazy">
+            <span class="activity-kind-badge">Supply &amp; Delivery</span>
+          </div>
+          <div class="activity-body">
+            <h3>CCTV Supply &amp; Installation — MNIC</h3>
+            <p class="activity-desc">Full CCTV system supply, installation and commissioning for commercial premises — cameras, NVR, cabling and configuration.</p>
+            <div class="activity-meta">
+              <div class="activity-meta-items">
+                <span class="activity-meta-item"><i class="fas fa-calendar-days"></i> January 2026</span>
+                <span class="activity-meta-item"><i class="fas fa-map-pin"></i> Dili</span>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 3: no image -->
+        <article class="activity-card" data-animate="fade-up" data-delay="160">
+          <div class="activity-body">
+            <span class="activity-kind-inline">Project</span>
+            <h3>Bitdefender GravityZone Deployment</h3>
+            <p class="activity-desc">Enterprise endpoint protection rollout across 200+ devices — policy design, staged deployment and ongoing monitoring.</p>
+            <div class="activity-meta">
+              <div class="activity-meta-items">
+                <span class="activity-meta-item"><i class="fas fa-calendar-days"></i> February 2026</span>
+                <span class="activity-meta-item"><i class="fas fa-map-pin"></i> Dili</span>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 4: with image + gallery -->
+        <article class="activity-card" data-animate="fade-up" data-delay="0">
+          <div class="activity-media activity-media-gallery" onclick="openActivityGallery(0)">
+            <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=900&q=80" alt="Network Infrastructure" loading="lazy">
+            <span class="activity-kind-badge">Project</span>
+            <span class="activity-latest-badge" data-i18n="activities.latest">Latest</span>
+            <button class="activity-gallery-btn" onclick="event.stopPropagation(); openActivityGallery(0)">
+              <i class="fas fa-images"></i> <span data-i18n="activities.gallery">View gallery</span> (3)
+            </button>
+          </div>
+          <div class="activity-body">
+            <h3>Network Infrastructure Rollout</h3>
+            <p class="activity-desc">Cisco Meraki switching, Wi-Fi and security appliance deployment across a multi-site campus — designed, installed and documented.</p>
+            <div class="activity-meta">
+              <div class="activity-meta-items">
+                <span class="activity-meta-item"><i class="fas fa-calendar-days"></i> April 2026</span>
+                <span class="activity-meta-item"><i class="fas fa-map-pin"></i> Dili</span>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 5: Training with countdown + register -->
+        <article class="activity-card" data-animate="fade-up" data-delay="80">
+          <div class="activity-body">
+            <span class="activity-kind-inline">Training</span>
+            <h3>Cybersecurity Awareness Workshop</h3>
+            <p class="activity-desc">Two-day hands-on workshop covering threat landscape, password hygiene, phishing defence and incident response basics for local teams.</p>
+            <div class="activity-meta">
+              <div class="activity-meta-items">
+                <span class="activity-countdown activity-countdown-soon" data-countdown="2026-10-15">Starts in 21 days</span>
+                <span class="activity-meta-item"><i class="fas fa-calendar-days"></i> 15 Oct 2026</span>
+                <span class="activity-meta-item"><i class="fas fa-map-pin"></i> Dili</span>
+              </div>
+              <button class="activity-register-btn" onclick="openSignupModal('Cybersecurity Awareness Workshop')">
+                <i class="fas fa-user-plus"></i> <span data-i18n="activities.register">Register</span>
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 6: no image -->
+        <article class="activity-card" data-animate="fade-up" data-delay="160">
+          <div class="activity-body">
+            <span class="activity-kind-inline">Event</span>
+            <h3>JICA Partnership Meeting</h3>
+            <p class="activity-desc">Meeting with the JICA Timor-Leste team to explore ICT capacity-building collaboration and technology transfer programs.</p>
+            <div class="activity-meta">
+              <div class="activity-meta-items">
+                <span class="activity-meta-item"><i class="fas fa-calendar-days"></i> 23 Sep 2026</span>
+                <span class="activity-meta-item"><i class="fas fa-map-pin"></i> Dili</span>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
   <!-- Team Section -->
   <section class="section section-alt" id="team">
     <div class="container">
@@ -806,6 +928,54 @@
   </a>
 
   <!-- Team Profile Modal -->
+  <!-- Activity Gallery Modal -->
+  <div class="activity-gallery-modal" id="activityGalleryModal">
+    <div class="activity-gallery-overlay" id="activityGalleryOverlay"></div>
+    <div class="activity-gallery-dialog">
+      <button class="activity-gallery-close" id="activityGalleryClose" aria-label="Close"><i class="fas fa-xmark"></i></button>
+      <h3 class="activity-gallery-title" id="activityGalleryTitle"></h3>
+      <div class="activity-gallery-main">
+        <img src="" alt="" id="activityGalleryMain">
+      </div>
+      <p class="activity-gallery-caption" id="activityGalleryCaption"></p>
+      <div class="activity-gallery-thumbs" id="activityGalleryThumbs"></div>
+    </div>
+  </div>
+
+  <!-- Activity Signup Modal -->
+  <div class="activity-signup-modal" id="activitySignupModal">
+    <div class="activity-signup-overlay" id="activitySignupOverlay"></div>
+    <div class="activity-signup-dialog">
+      <button class="activity-signup-close" id="activitySignupClose" aria-label="Close"><i class="fas fa-xmark"></i></button>
+      <div id="signupFormView">
+        <h3 class="activity-signup-title" data-i18n="activities.signupTitle">Training registration</h3>
+        <p class="activity-signup-highlight" id="signupActivityTitle"></p>
+        <form id="activitySignupForm">
+          <div class="activity-signup-grid">
+            <input type="text" id="signupName" placeholder="Full name" data-i18n-placeholder="activities.phName" required>
+            <input type="email" id="signupEmail" placeholder="Email address" data-i18n-placeholder="activities.phEmail" required>
+            <input type="text" id="signupPhone" placeholder="Phone / WhatsApp" data-i18n-placeholder="activities.phPhone">
+            <input type="text" id="signupCompany" placeholder="Company / Organization" data-i18n-placeholder="activities.phCompany">
+          </div>
+          <div class="activity-signup-full">
+            <input type="number" id="signupParticipants" min="1" max="100" value="1" placeholder="Number of participants" data-i18n-placeholder="activities.phParticipants" style="width:100%;height:3rem;background:#0B1120;border:1px solid rgba(255,255,255,0.1);color:#E2E8F0;padding:0 0.875rem;font-size:0.875rem;outline:none;">
+          </div>
+          <button type="submit" class="activity-signup-submit" id="signupSubmitBtn" data-i18n="activities.signupSubmit">Submit registration</button>
+        </form>
+      </div>
+      <div id="signupSuccessView" style="display:none;">
+        <div class="activity-signup-success">
+          <i class="fas fa-circle-check"></i>
+          <h3><span data-i18n="activities.signupSuccess">Registration received</span><span>.</span></h3>
+          <p class="ref-label" data-i18n="activities.signupRef">Your reference</p>
+          <p class="ref-number" id="signupRefNumber">ENZ-0000</p>
+          <p class="success-note" data-i18n="activities.signupNote">Our team will contact you with the training schedule and details.</p>
+          <button class="activity-signup-again" id="signupAgainBtn" data-i18n="activities.signupAgain">Register another person</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="team-modal" id="teamModal">
     <div class="team-modal-overlay" id="teamModalOverlay"></div>
     <div class="team-modal-content">

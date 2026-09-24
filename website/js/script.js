@@ -304,7 +304,24 @@ document.addEventListener('DOMContentLoaded', function () {
       'nav.bitdefender': 'Bitdefender',
       'nav.shop': 'Shop',
       'nav.language': 'English',
-      'nav.whatsapp': 'Chat WhatsApp'
+      'nav.whatsapp': 'Chat WhatsApp',
+      'activities.label': 'Activities & Training',
+      'activities.title': 'Enzi in action',
+      'activities.sub': 'Training programs and project work across Timor-Leste — building skills, supplying equipment and delivering systems.',
+      'activities.latest': 'Latest',
+      'activities.gallery': 'View gallery',
+      'activities.register': 'Register',
+      'activities.signupTitle': 'Training registration',
+      'activities.phName': 'Full name',
+      'activities.phEmail': 'Email address',
+      'activities.phPhone': 'Phone / WhatsApp',
+      'activities.phCompany': 'Company / Organization',
+      'activities.phParticipants': 'Number of participants',
+      'activities.signupSubmit': 'Submit registration',
+      'activities.signupSuccess': 'Registration received',
+      'activities.signupRef': 'Your reference',
+      'activities.signupNote': 'Our team will contact you with the training schedule and details.',
+      'activities.signupAgain': 'Register another person'
     },
     tet: {
       'hero.badge': 'Solusaun ICT & Digitál ba Empreza',
@@ -351,7 +368,24 @@ document.addEventListener('DOMContentLoaded', function () {
       'nav.bitdefender': 'Bitdefender',
       'nav.shop': 'Loja',
       'nav.language': 'Tetum',
-      'nav.whatsapp': 'Halo Sia WhatsApp'
+      'nav.whatsapp': 'Halo Sia WhatsApp',
+      'activities.label': 'Atividade & Formasaun',
+      'activities.title': 'Enzi iha asaun',
+      'activities.sub': 'Programa formasaun no servisu projetu iha Timor-Leste tomak — harii kapasidade, fornese ekipamentu no entrega sistema sira.',
+      'activities.latest': 'Foun',
+      'activities.gallery': 'Haree galeria',
+      'activities.register': 'Rejistu',
+      'activities.signupTitle': 'Rejistrasaun formasaun',
+      'activities.phName': 'Naran kompletu',
+      'activities.phEmail': 'Email',
+      'activities.phPhone': 'Telefone / WhatsApp',
+      'activities.phCompany': 'Empreza / Organizasaun',
+      'activities.phParticipants': 'Númeru partisipante',
+      'activities.signupSubmit': 'Haruka rejistrasaun',
+      'activities.signupSuccess': 'Rejistrasaun simu ona',
+      'activities.signupRef': 'Ita-nia referénsia',
+      'activities.signupNote': 'Ami-nia ekipa sei kontaktu ita ho oráriu no detallu formasaun nian.',
+      'activities.signupAgain': 'Rejistu ema seluk'
     }
   };
 
@@ -445,5 +479,163 @@ document.getElementById('teamModalClose').addEventListener('click', closeTeamMod
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') {
     closeTeamModal();
+    closeActivityGallery();
+    closeSignupModal();
   }
 });
+
+// ===== Activity Gallery =====
+var activityGalleries = [
+  {
+    title: 'Network Infrastructure Rollout',
+    images: [
+      { url: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=80', caption: 'Core switch rack and structured cabling' },
+      { url: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a2?auto=format&fit=crop&w=1200&q=80', caption: 'Wireless access point installation' },
+      { url: 'https://images.unsplash.com/photo-1551703599-6b3e8379aa8b?auto=format&fit=crop&w=1200&q=80', caption: 'Firewall and security appliance configuration' }
+    ]
+  }
+];
+var activeGalleryIdx = 0;
+var activeGalleryImg = 0;
+
+function openActivityGallery(galleryIdx) {
+  activeGalleryIdx = galleryIdx || 0;
+  activeGalleryImg = 0;
+  renderActivityGallery();
+  var modal = document.getElementById('activityGalleryModal');
+  if (modal) {
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function renderActivityGallery() {
+  var g = activityGalleries[activeGalleryIdx];
+  if (!g) return;
+  var title = document.getElementById('activityGalleryTitle');
+  var main = document.getElementById('activityGalleryMain');
+  var caption = document.getElementById('activityGalleryCaption');
+  var thumbs = document.getElementById('activityGalleryThumbs');
+  if (title) title.textContent = g.title;
+  if (main) {
+    main.src = g.images[activeGalleryImg].url;
+    main.alt = g.title;
+  }
+  if (caption) caption.textContent = g.images[activeGalleryImg].caption || '';
+  if (thumbs) {
+    thumbs.innerHTML = '';
+    g.images.forEach(function (img, i) {
+      var btn = document.createElement('button');
+      btn.className = 'activity-gallery-thumb' + (i === activeGalleryImg ? ' active' : '');
+      btn.innerHTML = '<img src="' + img.url + '" alt="">';
+      btn.addEventListener('click', function () {
+        activeGalleryImg = i;
+        renderActivityGallery();
+      });
+      thumbs.appendChild(btn);
+    });
+  }
+}
+
+function closeActivityGallery() {
+  var modal = document.getElementById('activityGalleryModal');
+  if (modal) {
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+}
+
+// ===== Activity Signup =====
+function openSignupModal(title) {
+  var modal = document.getElementById('activitySignupModal');
+  var titleEl = document.getElementById('signupActivityTitle');
+  var formView = document.getElementById('signupFormView');
+  var successView = document.getElementById('signupSuccessView');
+  if (titleEl) titleEl.textContent = title;
+  if (formView) formView.style.display = '';
+  if (successView) successView.style.display = 'none';
+  var form = document.getElementById('activitySignupForm');
+  if (form) form.reset();
+  var participants = document.getElementById('signupParticipants');
+  if (participants) participants.value = '1';
+  if (modal) {
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeSignupModal() {
+  var modal = document.getElementById('activitySignupModal');
+  if (modal) {
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+}
+
+// Modal close bindings
+(function () {
+  var gOverlay = document.getElementById('activityGalleryOverlay');
+  var gClose = document.getElementById('activityGalleryClose');
+  if (gOverlay) gOverlay.addEventListener('click', closeActivityGallery);
+  if (gClose) gClose.addEventListener('click', closeActivityGallery);
+
+  var sOverlay = document.getElementById('activitySignupOverlay');
+  var sClose = document.getElementById('activitySignupClose');
+  if (sOverlay) sOverlay.addEventListener('click', closeSignupModal);
+  if (sClose) sClose.addEventListener('click', closeSignupModal);
+
+  var form = document.getElementById('activitySignupForm');
+  if (form) {
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var formView = document.getElementById('signupFormView');
+      var successView = document.getElementById('signupSuccessView');
+      var refEl = document.getElementById('signupRefNumber');
+      if (refEl) {
+        var n = Math.floor(1000 + Math.random() * 9000);
+        refEl.textContent = 'ENZ-' + n;
+      }
+      if (formView) formView.style.display = 'none';
+      if (successView) successView.style.display = '';
+    });
+  }
+
+  var againBtn = document.getElementById('signupAgainBtn');
+  if (againBtn) {
+    againBtn.addEventListener('click', function () {
+      openSignupModal(document.getElementById('signupActivityTitle') ? document.getElementById('signupActivityTitle').textContent : '');
+    });
+  }
+})();
+
+// ===== Activity Countdown =====
+(function () {
+  document.querySelectorAll('[data-countdown]').forEach(function (el) {
+    var dateStr = el.getAttribute('data-countdown');
+    var start = new Date(dateStr + 'T00:00:00');
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
+    var days = Math.round((start - today) / 86400000);
+    var isTet = typeof currentLang !== 'undefined' && currentLang === 'tet';
+    if (days < 0) {
+      el.textContent = isTet ? 'Rejistu taka ona' : 'Registration closed';
+      el.className = 'activity-countdown';
+      el.style.color = '#64748B';
+      el.style.borderColor = 'rgba(255,255,255,0.15)';
+      el.style.background = 'transparent';
+      var btn = el.closest('.activity-meta');
+      if (btn) {
+        var regBtn = btn.querySelector('.activity-register-btn');
+        if (regBtn) regBtn.style.display = 'none';
+      }
+    } else if (days === 0) {
+      el.textContent = isTet ? 'Hahu ohin' : 'Starts today';
+      el.className = 'activity-countdown activity-countdown-soon';
+    } else {
+      el.textContent = isTet
+        ? 'Hahu iha loron ' + days
+        : 'Starts in ' + days + ' day' + (days === 1 ? '' : 's');
+      el.className = days <= 3 ? 'activity-countdown activity-countdown-soon' : 'activity-countdown activity-countdown-ok';
+    }
+  });
+})();
