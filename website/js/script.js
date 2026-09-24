@@ -1016,14 +1016,33 @@ function closeSignupModal() {
   }
 
   function renderAdminBar() {
-    // No login/logout in posts UI. New post only when staff session exists (via /admin/).
+    // New post + logout only when staff session exists (via /admin/).
     var newBtn = document.getElementById('postsNewBtn');
     var userEl = document.getElementById('postsAdminUser');
+    var logoutBtn = document.getElementById('postsLogoutBtn');
     if (newBtn) newBtn.hidden = !state.isAdmin;
+    if (logoutBtn) logoutBtn.hidden = !state.isAdmin;
     if (userEl) {
       userEl.hidden = !state.isAdmin;
       userEl.textContent = state.username || '';
     }
+  }
+
+  function bindLogout() {
+    var logoutBtn = document.getElementById('postsLogoutBtn');
+    if (!logoutBtn) return;
+    logoutBtn.addEventListener('click', function () {
+      if (!state.isAdmin) return;
+      apiFetch(API_LOGOUT, { method: 'POST' }).then(function () {
+        state.isAdmin = false;
+        state.username = null;
+        window.EnziIsAdmin = function () { return false; };
+        window.EnziAdminUser = function () { return null; };
+        document.dispatchEvent(new CustomEvent('enzi-auth-changed'));
+        renderAdminBar();
+        renderPosts();
+      }).catch(function () {});
+    });
   }
 
   function cardHtml(p, index) {
@@ -1547,6 +1566,7 @@ function closeSignupModal() {
     }
 
     bindEditor();
+    bindLogout();
   }
 
   function boot() {

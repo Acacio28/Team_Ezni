@@ -2053,6 +2053,15 @@ ul { list-style: none; margin: 0; padding: 0; }
   border-color: rgba(255, 255, 255, 0.45);
 }
 
+.posts-admin-logout {
+  border-color: rgba(237, 28, 36, 0.55);
+  color: #FECACA;
+}
+
+.posts-admin-logout:hover {
+  background: rgba(237, 28, 36, 0.15);
+}
+
 .posts-admin-new {
   background: var(--primary);
   border-color: var(--primary);
