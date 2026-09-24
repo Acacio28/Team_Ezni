@@ -28,9 +28,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Update scroll triggers on Lenis scroll
     lenis.on('scroll', function (e) {
-      // Optional: log scroll position
+      updateHeroParallax(e.scroll || window.pageYOffset);
     });
   }
+
+  // ===== Hero Parallax (kinos.tl style) =====
+  var hero = document.querySelector('.hero');
+  var heroBgImg = document.querySelector('.hero-bg-img');
+  var heroContentWrap = document.querySelector('.hero-content-wrap');
+
+  function updateHeroParallax(scrollY) {
+    if (!hero || !heroBgImg || !heroContentWrap) return;
+    var heroHeight = hero.offsetHeight;
+    if (scrollY > heroHeight) return;
+    var progress = Math.min(scrollY / heroHeight, 1);
+    heroBgImg.style.transform = 'translateY(' + (progress * 22) + '%)';
+    heroContentWrap.style.transform = 'translateY(' + (progress * 38) + '%)';
+    heroContentWrap.style.opacity = String(Math.max(1 - progress / 0.7, 0));
+  }
+
+  window.addEventListener('scroll', function () {
+    updateHeroParallax(window.pageYOffset);
+  }, { passive: true });
+  updateHeroParallax(window.pageYOffset);
 
   // ===== Scroll Animations (Intersection Observer) =====
   var animatedElements = document.querySelectorAll('[data-animate]');
@@ -112,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var scrollY = window.pageYOffset;
 
     if (header) {
-      header.classList.toggle('scrolled', scrollY > 80);
+      header.classList.toggle('scrolled', scrollY > 40);
     }
 
     if (backToTop) {
@@ -152,6 +172,17 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   });
+
+  // ===== Hero Scroll Indicator =====
+  var heroScroll = document.querySelector('.hero-scroll');
+  if (heroScroll) {
+    heroScroll.addEventListener('click', function () {
+      var about = document.getElementById('about');
+      if (about) {
+        about.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  }
 
   // ===== FAQ Accordion =====
   document.querySelectorAll('.faq-question').forEach(function (q) {
@@ -233,7 +264,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var translations = {
     en: {
       'hero.badge': 'Enterprise ICT & Digital Solutions',
-      'hero.title': '<span class="text-white">Leading ICT,</span><br><span class="text-red">Cybersecurity,</span><br><span class="text-white">Software</span> <span class="text-stroke">Development</span><br><span class="text-white">in</span> <span class="text-gold">Timor-Leste</span>',
+      'hero.title': '<span class="hero-line-mask"><span class="hero-line">Leading ICT,</span></span><span class="hero-line-mask"><span class="hero-line text-red">Cybersecurity,</span></span><span class="hero-line-mask"><span class="hero-line">Software <span class="text-stroke">Development</span></span></span><span class="hero-line-mask"><span class="hero-line">in <span class="text-gold">Timor-Leste</span></span></span>',
       'hero.subtitle': 'Enzi Dev delivers professional ICT services — Cybersecurity, Bitdefender GravityZone endpoint security, software & web development, cloud hosting, Cisco Meraki networking and 24/7 technical support for government, NGOs, education and private sector organizations.',
       'hero.shop': 'Shop Electronics',
       'hero.quote': 'Get a Free Quote',
@@ -270,8 +301,8 @@ document.addEventListener('DOMContentLoaded', function () {
     },
     tet: {
       'hero.badge': 'Solusaun ICT & Digitál ba Empreza',
-      'hero.title': '<span class="text-white">Lidera ICT,</span><br><span class="text-red">Seguransa Sibernétika,</span><br><span class="text-white">Dezenvolvimentu</span> <span class="text-stroke">Software</span><br><span class="text-white">iha</span> <span class="text-gold">Timor-Leste</span>',
-      'hero.subtitle': 'KINOS fornese servisu ICT profisionál iha Timor-Leste inklui Seguransa Sibernétika, Bitdefender GravityZone, dezenvolvimentu software & web, cloud hosting, rede Cisco Meraki no apoiu tékniku 24/7 ba governu, ONG, edukasaun no organizasaun setor privadu.',
+      'hero.title': '<span class="hero-line-mask"><span class="hero-line">Lidera ICT,</span></span><span class="hero-line-mask"><span class="hero-line text-red">Seguransa Sibernétika,</span></span><span class="hero-line-mask"><span class="hero-line">Dezenvolvimentu <span class="text-stroke">Software</span></span></span><span class="hero-line-mask"><span class="hero-line">iha <span class="text-gold">Timor-Leste</span></span></span>',
+      'hero.subtitle': 'Enzi Dev fornese servisu ICT profisionál iha Timor-Leste inklui Seguransa Sibernétika, Bitdefender GravityZone, dezenvolvimentu software & web, cloud hosting, rede Cisco Meraki no apoiu tékniku 24/7 ba governu, ONG, edukasaun no organizasaun setor privadu.',
       'hero.shop': 'Buka Loja',
       'hero.quote': 'Husu Kotasaun Grátis',
       'hero.clients': 'Klijente Sira',
