@@ -56,6 +56,7 @@
         <a href="#services" class="nav-link" data-i18n="nav.services">Services</a>
         <a href="#services" class="nav-link" data-i18n="nav.bitdefender">Bitdefender</a>
         <a href="#projects" class="nav-link" data-i18n="nav.projects">Projects</a>
+        <a href="#posts" class="nav-link" data-i18n="nav.posts">Posts</a>
         <a href="#team" class="nav-link" data-i18n="nav.team">Team</a>
         <a href="#contact" class="nav-link" data-i18n="nav.contact">Contact</a>
         <a href="#pricing" class="nav-link nav-link-red" data-i18n="nav.shop">Shop</a>
@@ -80,6 +81,7 @@
         <a href="#services" class="mobile-link" data-i18n="nav.services">Services</a>
         <a href="#services" class="mobile-link" data-i18n="nav.bitdefender">Bitdefender</a>
         <a href="#projects" class="mobile-link" data-i18n="nav.projects">Projects</a>
+        <a href="#posts" class="mobile-link" data-i18n="nav.posts">Posts</a>
         <a href="#team" class="mobile-link" data-i18n="nav.team">Team</a>
         <a href="#contact" class="mobile-link" data-i18n="nav.contact">Contact</a>
         <a href="#pricing" class="mobile-link" data-i18n="nav.shop">Shop</a>
@@ -437,6 +439,39 @@
           </div>
         </article>
       </div>
+    </div>
+  </section>
+
+  <!-- Posts Section (dynamic feed) -->
+  <section class="section-posts" id="posts">
+    <div class="posts-container">
+      <div class="posts-header">
+        <div class="posts-header-left" data-animate="fade-up" data-delay="0">
+          <p class="posts-label" data-i18n="posts.label">Insights &amp; Updates</p>
+          <h2 class="posts-title">
+            <span data-i18n="posts.title">Latest posts</span><span class="text-gold">.</span>
+          </h2>
+        </div>
+        <div class="posts-header-right" data-animate="fade-up" data-delay="100">
+          <p data-i18n="posts.sub">News, tutorials and project notes from the Enzi Dev team — everything we learn, shared.</p>
+        </div>
+      </div>
+      <div class="posts-toolbar" data-animate="fade-up" data-delay="0">
+        <div class="posts-filters" id="postsFilters" role="tablist" aria-label="Post categories"></div>
+        <div class="posts-search-wrap">
+          <i class="fas fa-search"></i>
+          <input type="search" id="postsSearch" class="posts-search" data-i18n-placeholder="posts.search" placeholder="Search posts…" autocomplete="off">
+        </div>
+      </div>
+      <div class="posts-grid" id="postsGrid" aria-live="polite"></div>
+      <div class="posts-empty" id="postsEmpty" hidden>
+        <i class="fas fa-newspaper"></i>
+        <p data-i18n="posts.empty">No posts match your filters.</p>
+      </div>
+      <div class="posts-more-wrap">
+        <button type="button" class="posts-more-btn" id="postsMoreBtn" data-i18n="posts.loadMore">Load more</button>
+      </div>
+      <p class="posts-count" id="postsCount"></p>
     </div>
   </section>
 
@@ -915,6 +950,7 @@
             <li><a href="#about"><i class="fas fa-chevron-right"></i> About Us</a></li>
             <li><a href="#services"><i class="fas fa-chevron-right"></i> Services</a></li>
             <li><a href="#projects"><i class="fas fa-chevron-right"></i> Projects</a></li>
+            <li><a href="#posts"><i class="fas fa-chevron-right"></i> Posts</a></li>
             <li><a href="#team"><i class="fas fa-chevron-right"></i> Our Team</a></li>
             <li><a href="#contact"><i class="fas fa-chevron-right"></i> Contact</a></li>
           </ul>
@@ -956,6 +992,42 @@
   <a href="#" class="back-to-top" id="backToTop">
     <i class="fas fa-arrow-up"></i>
   </a>
+
+  <!-- Post Detail Modal -->
+  <div class="post-modal" id="postModal" role="dialog" aria-modal="true" aria-labelledby="postModalTitle">
+    <div class="post-modal-overlay" id="postModalOverlay"></div>
+    <div class="post-modal-dialog">
+      <button class="post-modal-close" id="postModalClose" aria-label="Close"><i class="fas fa-xmark"></i></button>
+      <div class="post-modal-media" id="postModalMedia" hidden>
+        <img src="" alt="" id="postModalImage">
+      </div>
+      <div class="post-modal-body">
+        <div class="post-modal-meta">
+          <span class="post-modal-category" id="postModalCategory"></span>
+          <span class="post-modal-date" id="postModalDate"></span>
+          <span class="post-modal-read" id="postModalRead"></span>
+        </div>
+        <h2 class="post-modal-title" id="postModalTitle"></h2>
+        <div class="post-modal-author">
+          <div class="post-modal-avatar" id="postModalAvatar"></div>
+          <div>
+            <strong id="postModalAuthor"></strong>
+            <span id="postModalAuthorRole"></span>
+          </div>
+        </div>
+        <div class="post-modal-content" id="postModalContent"></div>
+        <div class="post-modal-tags" id="postModalTags"></div>
+        <div class="post-modal-share">
+          <span data-i18n="posts.share">Share</span>
+          <button type="button" class="post-share-btn" id="postShareCopy" title="Copy link"><i class="fas fa-link"></i></button>
+          <a class="post-share-btn post-share-wa" id="postShareWa" target="_blank" rel="noopener noreferrer" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+          <a class="post-share-btn post-share-fb" id="postShareFb" target="_blank" rel="noopener noreferrer" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a class="post-share-btn post-share-x" id="postShareX" target="_blank" rel="noopener noreferrer" title="X"><i class="fab fa-x-twitter"></i></a>
+        </div>
+        <p class="post-share-toast" id="postShareToast" hidden data-i18n="posts.copied">Link copied</p>
+      </div>
+    </div>
+  </div>
 
   <!-- Team Profile Modal -->
   <!-- Activity Gallery Modal -->
@@ -1043,6 +1115,7 @@
   <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
   
   <!-- Main JS -->
+  <script src="js/posts-data.js"></script>
   <script src="js/script.js"></script>
 </body>
 </html>

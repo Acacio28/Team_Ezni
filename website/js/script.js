@@ -299,6 +299,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'nav.about': 'About',
       'nav.services': 'Services',
       'nav.projects': 'Projects',
+      'nav.posts': 'Posts',
       'nav.team': 'Team',
       'nav.contact': 'Contact',
       'nav.bitdefender': 'Bitdefender',
@@ -329,7 +330,19 @@ document.addEventListener('DOMContentLoaded', function () {
       'clients.label': 'Our Clients',
       'clients.title': 'Trusted by leading organizations',
       'clients.hint': 'Want your organization listed here?',
-      'clients.cta': 'Partner with us →'
+      'clients.cta': 'Partner with us →',
+      'posts.label': 'Insights & Updates',
+      'posts.title': 'Latest posts',
+      'posts.sub': 'News, tutorials and project notes from the Enzi Dev team — everything we learn, shared.',
+      'posts.search': 'Search posts…',
+      'posts.empty': 'No posts match your filters.',
+      'posts.loadMore': 'Load more',
+      'posts.featured': 'Featured',
+      'posts.read': 'min read',
+      'posts.share': 'Share',
+      'posts.copied': 'Link copied',
+      'posts.showing': 'Showing {shown} of {total} posts',
+      'posts.catAll': 'All'
     },
     tet: {
       'hero.badge': 'Solusaun ICT & Digitál ba Empreza',
@@ -371,6 +384,7 @@ document.addEventListener('DOMContentLoaded', function () {
       'nav.about': 'Ba Ita',
       'nav.services': 'Servisu',
       'nav.projects': 'Projetu',
+      'nav.posts': 'Post',
       'nav.team': 'Ekipa',
       'nav.contact': 'Kontaktu',
       'nav.bitdefender': 'Bitdefender',
@@ -401,11 +415,31 @@ document.addEventListener('DOMContentLoaded', function () {
       'clients.label': 'Ami-nia Klijente',
       'clients.title': 'Organizasaun boot sira konfia ami',
       'clients.hint': 'Hakarak ita-nia organizasaun hatudu iha ne’e?',
-      'clients.cta': 'Parseiru ho ami →'
+      'clients.cta': 'Parseiru ho ami →',
+      'posts.label': 'Hasaun & Atualizasaun',
+      'posts.title': 'Post foun',
+      'posts.sub': 'Notisia, tutorial no nota projetu hotu husi ekipa Enzi Dev — tanba ita aprende, ita partaje.',
+      'posts.search': 'Buka post…',
+      'posts.empty': 'La iha post ne’ebe maka fituran ita.',
+      'posts.loadMore': 'Hata’es labarik',
+      'posts.featured': 'Destaka',
+      'posts.read': 'minutu hanoi',
+      'posts.share': 'Partaje',
+      'posts.copied': 'Link kopia ona',
+      'posts.showing': 'Hatudu {shown} ho {total} post',
+      'posts.catAll': 'Hotu'
     }
   };
 
   var currentLang = 'en';
+
+  window.EnziI18n = {
+    get lang() { return currentLang; },
+    t: function (key) {
+      var pack = translations[currentLang] || translations.en;
+      return pack[key] || (translations.en[key] || key);
+    }
+  };
 
   function switchLanguage(lang) {
     currentLang = lang;
@@ -423,11 +457,24 @@ document.addEventListener('DOMContentLoaded', function () {
         el.innerHTML = translations[lang][key];
       }
     });
+    var phElements = document.querySelectorAll('[data-i18n-placeholder]');
+    phElements.forEach(function (el) {
+      var key = el.getAttribute('data-i18n-placeholder');
+      if (translations[lang] && translations[lang][key]) {
+        el.setAttribute('placeholder', translations[lang][key]);
+      }
+    });
     var langCode = document.getElementById('lang-code');
     if (langCode) {
       langCode.textContent = lang === 'tet' ? 'TT' : 'EN';
     }
     document.documentElement.setAttribute('lang', lang === 'tet' ? 'tet' : lang);
+    if (typeof renderPosts === 'function') {
+      renderPosts();
+    }
+    if (typeof updatePostModalChrome === 'function') {
+      updatePostModalChrome();
+    }
   }
 
   // Language toggle button
@@ -497,6 +544,7 @@ document.addEventListener('keydown', function(e) {
     closeTeamModal();
     closeActivityGallery();
     closeSignupModal();
+    if (typeof closePostModal === 'function') closePostModal();
   }
 });
 
@@ -654,4 +702,416 @@ function closeSignupModal() {
       el.className = days <= 3 ? 'activity-countdown activity-countdown-soon' : 'activity-countdown activity-countdown-ok';
     }
   });
+})();
+
+// ===== Posts Section (dynamic) =====
+(function () {
+  var PAGE_SIZE = 6;
+  var state = {
+    category: 'all',
+    query: '',
+    visible: PAGE_SIZE,
+    activeId: null
+  };
+
+  function t(key) {
+    if (window.EnziI18n && typeof window.EnziI18n.t === 'function') {
+      return window.EnziI18n.t(key);
+    }
+    return key;
+  }
+
+  function isTet() {
+    return window.EnziI18n && window.EnziI18n.lang === 'tet';
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '';
+    var d = new Date(iso + 'T00:00:00');
+    if (isNaN(d.getTime())) return iso;
+    try {
+      return d.toLocaleDateString(isTet() ? 'tet-TL' : 'en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+      });
+    } catch (err) {
+      return d.toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+      });
+    }
+  }
+
+  function escapeHtml(str) {
+    return String(str == null ? '' : str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function contentToHtml(content) {
+    if (!content) return '';
+    return String(content)
+      .split(/\n\n+/)
+      .map(function (block) {
+        var b = block.trim();
+        if (!b) return '';
+        if (/^•\s/.test(b) || /\n•\s/.test(block)) {
+          var items = block.split(/\n/).filter(function (line) {
+            return /^•\s/.test(line.trim());
+          });
+          if (items.length && items.length === block.split(/\n/).filter(function (l) { return l.trim(); }).length) {
+            return '<ul>' + items.map(function (line) {
+              return '<li>' + escapeHtml(line.replace(/^•\s*/, '')) + '</li>';
+            }).join('') + '</ul>';
+          }
+        }
+        if (/^\d+\.\s/.test(b)) {
+          var lines = block.split(/\n/).filter(function (l) { return l.trim(); });
+          if (lines.length && lines.every(function (l) { return /^\d+\.\s/.test(l.trim()); })) {
+            return '<ol>' + lines.map(function (line) {
+              return '<li>' + escapeHtml(line.replace(/^\d+\.\s*/, '')) + '</li>';
+            }).join('') + '</ol>';
+          }
+        }
+        return '<p>' + escapeHtml(b).replace(/\n/g, '<br>') + '</p>';
+      })
+      .join('');
+  }
+
+  function getFiltered() {
+    var list = (typeof POSTS !== 'undefined' && Array.isArray(POSTS)) ? POSTS.slice() : [];
+    list.sort(function (a, b) {
+      if (a.featured && !b.featured) return -1;
+      if (!a.featured && b.featured) return 1;
+      return String(b.date || '').localeCompare(String(a.date || ''));
+    });
+    if (state.category && state.category !== 'all') {
+      list = list.filter(function (p) {
+        return String(p.category || '').toLowerCase() === state.category.toLowerCase();
+      });
+    }
+    var q = state.query.trim().toLowerCase();
+    if (q) {
+      list = list.filter(function (p) {
+        var hay = [p.title, p.excerpt, p.content, p.author, (p.tags || []).join(' '), p.category]
+          .join(' ')
+          .toLowerCase();
+        return hay.indexOf(q) !== -1;
+      });
+    }
+    return list;
+  }
+
+  function observePostCards(root) {
+    var els = (root || document).querySelectorAll('[data-animate]:not(.animated)');
+    if (typeof IntersectionObserver === 'undefined') {
+      els.forEach(function (el) { el.classList.add('animated'); });
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          var delay = entry.target.getAttribute('data-delay') || 0;
+          setTimeout(function () {
+            entry.target.classList.add('animated');
+          }, parseInt(delay, 10) || 0);
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+    els.forEach(function (el) { io.observe(el); });
+  }
+
+  function renderFilters() {
+    var wrap = document.getElementById('postsFilters');
+    if (!wrap || typeof POST_CATEGORIES === 'undefined') return;
+    wrap.innerHTML = '';
+    POST_CATEGORIES.forEach(function (cat, i) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'posts-filter-btn' + (state.category === cat.key ? ' active' : '');
+      btn.textContent = cat.key === 'all' ? t('posts.catAll') : cat.label;
+      btn.setAttribute('role', 'tab');
+      btn.setAttribute('aria-selected', state.category === cat.key ? 'true' : 'false');
+      btn.addEventListener('click', function () {
+        state.category = cat.key;
+        state.visible = PAGE_SIZE;
+        renderPosts();
+      });
+      wrap.appendChild(btn);
+    });
+  }
+
+  function cardHtml(p, index) {
+    var isFeaturedCard = !!p.featured && state.category === 'all' && !state.query;
+    var delay = (index % 3) * 80;
+    var media = p.image
+      ? '<div class="post-card-media">' +
+          (p.featured ? '<span class="post-featured-badge">' + escapeHtml(t('posts.featured')) + '</span>' : '') +
+          '<img src="' + escapeHtml(p.image) + '" alt="' + escapeHtml(p.title) + '" loading="lazy">' +
+          '<span class="post-card-category">' + escapeHtml(p.category || '') + '</span>' +
+        '</div>'
+      : '<div class="post-card-media">' +
+          (p.featured ? '<span class="post-featured-badge">' + escapeHtml(t('posts.featured')) + '</span>' : '') +
+          '<div class="post-card-placeholder"><i class="fas fa-newspaper"></i></div>' +
+          '<span class="post-card-category">' + escapeHtml(p.category || '') + '</span>' +
+        '</div>';
+
+    return (
+      '<button type="button" class="post-card' + (isFeaturedCard ? ' post-card-featured' : '') + '" ' +
+        'data-animate="fade-up" data-delay="' + delay + '" data-post-id="' + escapeHtml(p.id) + '" ' +
+        'aria-label="' + escapeHtml(p.title) + '">' +
+        media +
+        '<div class="post-card-body">' +
+          '<h3>' + escapeHtml(p.title) + '</h3>' +
+          '<p class="post-card-excerpt">' + escapeHtml(p.excerpt || '') + '</p>' +
+          '<div class="post-card-meta">' +
+            '<span><i class="fas fa-calendar-days"></i>' + escapeHtml(formatDate(p.date)) + '</span>' +
+            '<span><i class="fas fa-user"></i>' + escapeHtml(p.author || '') + '</span>' +
+            '<span class="post-card-read">' + escapeHtml(p.readTime || 3) + ' ' + escapeHtml(t('posts.read')) + '</span>' +
+          '</div>' +
+        '</div>' +
+      '</button>'
+    );
+  }
+
+  function updateCount(shown, total) {
+    var el = document.getElementById('postsCount');
+    if (!el) return;
+    el.textContent = t('posts.showing')
+      .replace('{shown}', String(shown))
+      .replace('{total}', String(total));
+  }
+
+  window.renderPosts = function renderPosts() {
+    var grid = document.getElementById('postsGrid');
+    var empty = document.getElementById('postsEmpty');
+    var moreBtn = document.getElementById('postsMoreBtn');
+    if (!grid) return;
+
+    renderFilters();
+
+    var filtered = getFiltered();
+    var visible = filtered.slice(0, state.visible);
+
+    grid.innerHTML = visible.map(cardHtml).join('');
+
+    if (empty) {
+      if (filtered.length === 0) {
+        empty.hidden = false;
+      } else {
+        empty.hidden = true;
+      }
+    }
+
+    if (moreBtn) {
+      moreBtn.hidden = filtered.length <= state.visible;
+    }
+
+    updateCount(visible.length, filtered.length);
+
+    grid.querySelectorAll('.post-card').forEach(function (card) {
+      card.addEventListener('click', function () {
+        openPostModal(card.getAttribute('data-post-id'));
+      });
+    });
+
+    observePostCards(grid);
+  };
+
+  window.openPostModal = function openPostModal(id) {
+    var post = (typeof POSTS !== 'undefined' ? POSTS : []).find(function (p) {
+      return p.id === id;
+    });
+    if (!post) return;
+
+    state.activeId = id;
+
+    var media = document.getElementById('postModalMedia');
+    var img = document.getElementById('postModalImage');
+    if (media && img) {
+      if (post.image) {
+        media.hidden = false;
+        img.src = post.image;
+        img.alt = post.title || '';
+      } else {
+        media.hidden = true;
+        img.removeAttribute('src');
+      }
+    }
+
+    var cat = document.getElementById('postModalCategory');
+    var date = document.getElementById('postModalDate');
+    var read = document.getElementById('postModalRead');
+    var title = document.getElementById('postModalTitle');
+    var avatar = document.getElementById('postModalAvatar');
+    var author = document.getElementById('postModalAuthor');
+    var role = document.getElementById('postModalAuthorRole');
+    var content = document.getElementById('postModalContent');
+    var tags = document.getElementById('postModalTags');
+
+    if (cat) cat.textContent = post.category || '';
+    if (date) date.textContent = formatDate(post.date);
+    if (read) read.textContent = (post.readTime || 3) + ' ' + t('posts.read');
+    if (title) title.textContent = post.title || '';
+    if (avatar) {
+      var initials = String(post.author || 'E')
+        .split(/\s+/)
+        .map(function (w) { return w.charAt(0); })
+        .join('')
+        .slice(0, 2)
+        .toUpperCase();
+      avatar.textContent = initials;
+    }
+    if (author) author.textContent = post.author || '';
+    if (role) role.textContent = post.authorRole || '';
+    if (content) content.innerHTML = contentToHtml(post.content || post.excerpt || '');
+    if (tags) {
+      tags.innerHTML = (post.tags || [])
+        .map(function (tag) {
+          return '<span class="post-tag">' + escapeHtml(tag) + '</span>';
+        })
+        .join('');
+    }
+
+    updatePostModalChrome();
+    updateShareLinks(post);
+
+    var modal = document.getElementById('postModal');
+    if (modal) {
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      var closeBtn = document.getElementById('postModalClose');
+      if (closeBtn) closeBtn.focus();
+    }
+  };
+
+  window.closePostModal = function closePostModal() {
+    var modal = document.getElementById('postModal');
+    if (modal) {
+      modal.classList.remove('active');
+      if (!document.querySelector('.activity-gallery-modal.active, .activity-share-modal.active, .activity-signup-modal.active, .team-modal.active')) {
+        document.body.style.overflow = '';
+      }
+    }
+    state.activeId = null;
+    var toast = document.getElementById('postShareToast');
+    if (toast) toast.hidden = true;
+  };
+
+  window.updatePostModalChrome = function updatePostModalChrome() {
+    var shareLabel = document.querySelector('.post-modal-share > span');
+    if (shareLabel) shareLabel.textContent = t('posts.share');
+    var toast = document.getElementById('postShareToast');
+    if (toast) toast.setAttribute('data-i18n', 'posts.copied');
+    if (state.activeId) {
+      var read = document.getElementById('postModalRead');
+      var post = (typeof POSTS !== 'undefined' ? POSTS : []).find(function (p) {
+        return p.id === state.activeId;
+      });
+      if (read && post) {
+        read.textContent = (post.readTime || 3) + ' ' + t('posts.read');
+      }
+    }
+  };
+
+  function updateShareLinks(post) {
+    var url = window.location.origin + window.location.pathname + '#posts';
+    var text = (post.title || '') + ' — Enzi Dev';
+    var encUrl = encodeURIComponent(url);
+    var encText = encodeURIComponent(text);
+
+    var wa = document.getElementById('postShareWa');
+    var fb = document.getElementById('postShareFb');
+    var x = document.getElementById('postShareX');
+    if (wa) wa.href = 'https://wa.me/?text=' + encText + '%20' + encUrl;
+    if (fb) fb.href = 'https://www.facebook.com/sharer/sharer.php?u=' + encUrl;
+    if (x) x.href = 'https://twitter.com/intent/tweet?text=' + encText + '&url=' + encUrl;
+  }
+
+  function bindPostsUi() {
+    var search = document.getElementById('postsSearch');
+    if (search) {
+      var timer = null;
+      search.addEventListener('input', function () {
+        clearTimeout(timer);
+        timer = setTimeout(function () {
+          state.query = search.value || '';
+          state.visible = PAGE_SIZE;
+          renderPosts();
+        }, 200);
+      });
+      search.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          search.value = '';
+          state.query = '';
+          renderPosts();
+        }
+      });
+    }
+
+    var moreBtn = document.getElementById('postsMoreBtn');
+    if (moreBtn) {
+      moreBtn.addEventListener('click', function () {
+        state.visible += PAGE_SIZE;
+        renderPosts();
+      });
+    }
+
+    var overlay = document.getElementById('postModalOverlay');
+    if (overlay) overlay.addEventListener('click', closePostModal);
+
+    var closeBtn = document.getElementById('postModalClose');
+    if (closeBtn) closeBtn.addEventListener('click', closePostModal);
+
+    var copyBtn = document.getElementById('postShareCopy');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', function () {
+        var url = window.location.origin + window.location.pathname + '#posts';
+        var toast = document.getElementById('postShareToast');
+        function showCopied() {
+          if (toast) {
+            toast.hidden = false;
+            setTimeout(function () { toast.hidden = true; }, 2000);
+          }
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(url).then(showCopied).catch(function () {
+            fallbackCopy(url);
+            showCopied();
+          });
+        } else {
+          fallbackCopy(url);
+          showCopied();
+        }
+      });
+    }
+
+    function fallbackCopy(text) {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch (err) {}
+      document.body.removeChild(ta);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () {
+      bindPostsUi();
+      renderPosts();
+    });
+  } else {
+    bindPostsUi();
+    renderPosts();
+  }
 })();
