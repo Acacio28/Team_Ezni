@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
 
-    mobilePanel.querySelectorAll('.mobile-link').forEach(function (link) {
+    mobilePanel.querySelectorAll('.mobile-link, .mobile-action-card').forEach(function (link) {
       link.addEventListener('click', closeMobileMenu);
     });
 
@@ -303,7 +303,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'nav.contact': 'Contact',
       'nav.bitdefender': 'Bitdefender',
       'nav.shop': 'Shop',
-      'nav.language': 'English'
+      'nav.language': 'English',
+      'nav.whatsapp': 'Chat WhatsApp'
     },
     tet: {
       'hero.badge': 'Solusaun ICT & Digitál ba Empreza',
@@ -349,7 +350,8 @@ document.addEventListener('DOMContentLoaded', function () {
       'nav.contact': 'Kontaktu',
       'nav.bitdefender': 'Bitdefender',
       'nav.shop': 'Loja',
-      'nav.language': 'Tetum'
+      'nav.language': 'Tetum',
+      'nav.whatsapp': 'Halo Sia WhatsApp'
     }
   };
 
