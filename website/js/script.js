@@ -598,7 +598,6 @@ document.getElementById('teamModalClose').addEventListener('click', closeTeamMod
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') {
     if (typeof closePostEditor === 'function') closePostEditor();
-    if (typeof closePostLogin === 'function') closePostLogin();
     closeTeamModal();
     closeActivityGallery();
     closeSignupModal();
@@ -968,23 +967,10 @@ function closeSignupModal() {
     }
   }
 
-  function wantsAdminLogin() {
-    try {
-      return new URLSearchParams(window.location.search).has('admin') ||
-        window.location.hash === '#admin';
-    } catch (err) {
-      return false;
-    }
-  }
-
   function renderAdminBar() {
-    var loginBtn = document.getElementById('postsLoginBtn');
-    var logoutBtn = document.getElementById('postsLogoutBtn');
+    // No login/logout in posts UI. New post only when staff session exists (via /admin/).
     var newBtn = document.getElementById('postsNewBtn');
     var userEl = document.getElementById('postsAdminUser');
-    // Public: never show Admin button. Show only if already staff OR ?admin/#admin.
-    if (loginBtn) loginBtn.hidden = state.isAdmin || !wantsAdminLogin();
-    if (logoutBtn) logoutBtn.hidden = !state.isAdmin;
     if (newBtn) newBtn.hidden = !state.isAdmin;
     if (userEl) {
       userEl.hidden = !state.isAdmin;
@@ -1270,93 +1256,6 @@ function closeSignupModal() {
     });
   }
 
-  // ---- Login / logout ----
-  function openLoginModal() {
-    var modal = document.getElementById('postLoginModal');
-    if (!modal) return;
-    var err = document.getElementById('postLoginError');
-    if (err) { err.hidden = true; err.textContent = ''; }
-    var form = document.getElementById('postLoginForm');
-    if (form) form.reset();
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-    var user = document.getElementById('postLoginUser');
-    if (user) user.focus();
-  }
-
-  function closeLoginModal() {
-    var modal = document.getElementById('postLoginModal');
-    if (modal) modal.classList.remove('active');
-    if (!document.querySelector('.post-modal.active, .activity-gallery-modal.active, .activity-share-modal.active, .activity-signup-modal.active, .team-modal.active')) {
-      document.body.style.overflow = '';
-    }
-  }
-
-  function showLoginError(msg) {
-    var err = document.getElementById('postLoginError');
-    if (!err) return;
-    err.textContent = msg;
-    err.hidden = false;
-  }
-
-  function bindLogin() {
-    var openBtn = document.getElementById('postsLoginBtn');
-    if (openBtn) openBtn.addEventListener('click', openLoginModal);
-
-    var closeBtn = document.getElementById('postLoginClose');
-    if (closeBtn) closeBtn.addEventListener('click', closeLoginModal);
-    var overlay = document.getElementById('postLoginOverlay');
-    if (overlay) overlay.addEventListener('click', closeLoginModal);
-
-    var form = document.getElementById('postLoginForm');
-    if (form) {
-      form.addEventListener('submit', function (e) {
-        e.preventDefault();
-        var username = (document.getElementById('postLoginUser') || {}).value || '';
-        var password = (document.getElementById('postLoginPass') || {}).value || '';
-        username = username.trim();
-        if (!username || !password) {
-          showLoginError(t('posts.username') + ' / ' + t('posts.password'));
-          return;
-        }
-        var submit = document.getElementById('postLoginSubmit');
-        if (submit) submit.disabled = true;
-        apiFetch(API_LOGIN, {
-          method: 'POST',
-          body: JSON.stringify({ username: username, password: password })
-        }).then(function (data) {
-          if (submit) submit.disabled = false;
-          if (data.success) {
-            closeLoginModal();
-            try {
-              var u = new URL(window.location.href);
-              u.searchParams.delete('admin');
-              if (u.hash === '#admin') u.hash = '';
-              window.history.replaceState({}, '', u.pathname + u.search + u.hash);
-            } catch (err) {}
-            return refreshMe();
-          }
-          showLoginError(data.message || 'Login failed');
-        }).catch(function () {
-          if (submit) submit.disabled = false;
-          showLoginError('Login failed');
-        });
-      });
-    }
-
-    var logoutBtn = document.getElementById('postsLogoutBtn');
-    if (logoutBtn) {
-      logoutBtn.addEventListener('click', function () {
-        apiFetch(API_LOGOUT, { method: 'POST' }).then(function () {
-          state.isAdmin = false;
-          state.username = null;
-          renderAdminBar();
-          renderPosts();
-        });
-      });
-    }
-  }
-
   // ---- Editor (create / edit) ----
   function openEditor(id) {
     if (!state.isAdmin) return;
@@ -1522,7 +1421,6 @@ function closeSignupModal() {
   }
 
   window.closePostEditor = closeEditor;
-  window.closePostLogin = closeLoginModal;
 
   function bindPostsUi() {
     var search = document.getElementById('postsSearch');
@@ -1594,19 +1492,13 @@ function closeSignupModal() {
       document.body.removeChild(ta);
     }
 
-    bindLogin();
     bindEditor();
   }
 
   function boot() {
     bindPostsUi();
     refreshMe().then(function () {
-      return loadPosts().then(function () {
-        // Auto-open login only for admin entry URL (not public)
-        if (!state.isAdmin && wantsAdminLogin()) {
-          openLoginModal();
-        }
-      });
+      return loadPosts();
     });
   }
 

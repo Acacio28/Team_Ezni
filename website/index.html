@@ -469,13 +469,6 @@
             <button type="button" class="posts-admin-btn posts-admin-new" id="postsNewBtn" hidden>
               <i class="fas fa-plus"></i> <span data-i18n="posts.newPost">New post</span>
             </button>
-            <button type="button" class="posts-admin-btn posts-admin-logout" id="postsLogoutBtn" hidden>
-              <i class="fas fa-right-from-bracket"></i> <span data-i18n="posts.logout">Logout</span>
-            </button>
-            <!-- Hidden from public; shown only with ?admin or when already staff session -->
-            <button type="button" class="posts-admin-btn posts-admin-login" id="postsLoginBtn" hidden>
-              <i class="fas fa-lock"></i> <span data-i18n="posts.login">Admin</span>
-            </button>
           </div>
         </div>
       </div>
@@ -1041,27 +1034,6 @@
           <a class="post-share-btn post-share-x" id="postShareX" target="_blank" rel="noopener noreferrer" title="X"><i class="fab fa-x-twitter"></i></a>
         </div>
         <p class="post-share-toast" id="postShareToast" hidden data-i18n="posts.copied">Link copied</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Admin Login Modal -->
-  <div class="post-modal" id="postLoginModal" role="dialog" aria-modal="true" aria-labelledby="postLoginTitle">
-    <div class="post-modal-overlay" id="postLoginOverlay"></div>
-    <div class="post-modal-dialog post-login-dialog">
-      <button class="post-modal-close" id="postLoginClose" aria-label="Close"><i class="fas fa-xmark"></i></button>
-      <div class="post-login-body">
-        <div class="post-login-icon"><i class="fas fa-shield-halved"></i></div>
-        <h2 id="postLoginTitle" data-i18n="posts.loginTitle">Admin login</h2>
-        <p class="post-login-hint" data-i18n="posts.loginHint">Sign in to create, edit or delete posts.</p>
-        <form id="postLoginForm" novalidate>
-          <label class="post-login-label" for="postLoginUser" data-i18n="posts.username">Username</label>
-          <input type="text" id="postLoginUser" name="username" autocomplete="username" required>
-          <label class="post-login-label" for="postLoginPass" data-i18n="posts.password">Password</label>
-          <input type="password" id="postLoginPass" name="password" autocomplete="current-password" required>
-          <p class="post-login-error" id="postLoginError" hidden></p>
-          <button type="submit" class="post-login-submit" id="postLoginSubmit" data-i18n="posts.signIn">Sign in</button>
-        </form>
       </div>
     </div>
   </div>
