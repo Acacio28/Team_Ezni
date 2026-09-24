@@ -325,7 +325,11 @@ document.addEventListener('DOMContentLoaded', function () {
       'team.label': 'The People',
       'team.title': 'Meet the team',
       'team.sub': 'Certified engineers, developers and support specialists based in Dili — on call when you need us.',
-      'team.viewProfile': 'View profile'
+      'team.viewProfile': 'View profile',
+      'clients.label': 'Our Clients',
+      'clients.title': 'Trusted by leading organizations',
+      'clients.hint': 'Want your organization listed here?',
+      'clients.cta': 'Partner with us →'
     },
     tet: {
       'hero.badge': 'Solusaun ICT & Digitál ba Empreza',
@@ -393,7 +397,11 @@ document.addEventListener('DOMContentLoaded', function () {
       'team.label': 'Ema Sira',
       'team.title': 'Hasoru ami-nia ekipa',
       'team.sub': 'Engenheiru sertifikadu, dezenvolvedor no espesialista apoiu bazeia iha Dili — pronto bainhira ita presiza.',
-      'team.viewProfile': 'Haree perfil'
+      'team.viewProfile': 'Haree perfil',
+      'clients.label': 'Ami-nia Klijente',
+      'clients.title': 'Organizasaun boot sira konfia ami',
+      'clients.hint': 'Hakarak ita-nia organizasaun hatudu iha ne’e?',
+      'clients.cta': 'Parseiru ho ami →'
     }
   };
 
