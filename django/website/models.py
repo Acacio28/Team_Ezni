@@ -265,3 +265,41 @@ class CompanyInfo(models.Model):
 
     def __str__(self):
         return self.key
+
+
+class Post(models.Model):
+    """Blog / news posts for the Posts section"""
+    title = models.CharField(max_length=300)
+    slug = models.SlugField(unique=True, blank=True)
+    excerpt = models.TextField(max_length=500, blank=True)
+    content = models.TextField()
+    category = models.CharField(max_length=50, blank=True, default='Company')
+    tags = models.JSONField(default=list, blank=True)
+    image = models.URLField(blank=True)
+    author = models.CharField(max_length=100, blank=True)
+    author_role = models.CharField(max_length=100, blank=True)
+    date = models.DateField()
+    read_time = models.IntegerField(default=3)
+    featured = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-featured', '-date', '-created_at']
+        verbose_name = 'Post'
+        verbose_name_plural = 'Posts'
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base = slugify(self.title)[:200] or 'post'
+            slug = base
+            n = 1
+            while Post.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                n += 1
+                slug = f'{base}-{n}'
+            self.slug = slug
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.title

@@ -2003,6 +2003,305 @@ ul { list-style: none; margin: 0; padding: 0; }
   }
 }
 
+.posts-toolbar-right {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.posts-admin-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.posts-admin-user {
+  font-size: 0.75rem;
+  color: var(--accent);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid rgba(255, 198, 26, 0.35);
+}
+
+.posts-admin-btn {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fff;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.55rem 0.9rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: background 300ms, border-color 300ms, color 300ms;
+}
+
+.posts-admin-btn:hover {
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+.posts-admin-new {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.posts-admin-new:hover {
+  background: #C81016;
+  border-color: #C81016;
+}
+
+.posts-admin-login {
+  border-color: rgba(237, 28, 36, 0.55);
+  color: #FECACA;
+}
+
+.posts-admin-login:hover {
+  background: rgba(237, 28, 36, 0.15);
+}
+
+.posts-admin-logout:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.post-card-actions {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: flex;
+  gap: 0.4rem;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 200ms;
+}
+
+.post-card:hover .post-card-actions,
+.post-card:focus-within .post-card-actions {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .post-card-actions { opacity: 1; }
+}
+
+.post-card-action {
+  width: 2rem;
+  height: 2rem;
+  background: rgba(11, 17, 32, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #E2E8F0;
+  font-size: 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 200ms, border-color 200ms, color 200ms;
+}
+
+.post-card-edit:hover {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.post-card-delete:hover {
+  background: #7f1d1d;
+  border-color: #ef4444;
+  color: #fff;
+}
+
+.post-card {
+  position: relative;
+}
+
+.posts-loading {
+  grid-column: 1 / -1;
+  border: none;
+  padding: 4rem 1rem;
+}
+
+/* Admin login / editor dialogs */
+.post-login-dialog {
+  max-width: 24rem;
+}
+
+.post-editor-dialog {
+  max-width: 52rem;
+}
+
+.post-login-body,
+.post-editor-body {
+  padding: 2rem 1.75rem;
+}
+
+@media (min-width: 640px) {
+  .post-login-body,
+  .post-editor-body { padding: 2.25rem 2.5rem; }
+}
+
+.post-login-icon {
+  width: 3rem;
+  height: 3rem;
+  background: rgba(237, 28, 36, 0.12);
+  border: 1px solid rgba(237, 28, 36, 0.4);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.post-login-body h2,
+.post-editor-body h2 {
+  font-family: var(--font-display);
+  color: #fff;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.post-login-hint {
+  color: #94A3B8;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.post-login-label,
+.post-editor-field label {
+  display: block;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #64748B;
+  margin-bottom: 0.4rem;
+  margin-top: 0.9rem;
+}
+
+.post-login-body input,
+.post-editor-field input,
+.post-editor-field textarea {
+  width: 100%;
+  background: #0B1120;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #E2E8F0;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  padding: 0.7rem 0.85rem;
+  outline: none;
+  transition: border-color 200ms;
+}
+
+.post-login-body input:focus,
+.post-editor-field input:focus,
+.post-editor-field textarea:focus {
+  border-color: rgba(237, 28, 36, 0.55);
+}
+
+.post-editor-field textarea {
+  resize: vertical;
+  min-height: 5rem;
+  line-height: 1.55;
+}
+
+.post-login-error {
+  color: #F87171;
+  font-size: 0.85rem;
+  margin-top: 0.85rem;
+}
+
+.post-login-submit {
+  width: 100%;
+  margin-top: 1.25rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--primary);
+  border: none;
+  padding: 0.9rem 1rem;
+  cursor: pointer;
+  transition: background 300ms;
+}
+
+.post-login-submit:hover {
+  background: #C81016;
+}
+
+.post-login-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.post-editor-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.25rem 1rem;
+}
+
+@media (min-width: 768px) {
+  .post-editor-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .post-editor-span2 {
+    grid-column: 1 / -1;
+  }
+}
+
+.post-editor-check {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1rem;
+  color: #CBD5E1;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.post-editor-check input {
+  width: auto;
+  accent-color: var(--primary);
+}
+
+.post-editor-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-top: 1.25rem;
+}
+
+.post-editor-cancel {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #94A3B8;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 0.75rem 1.25rem;
+  cursor: pointer;
+  transition: color 200ms, border-color 200ms;
+}
+
+.post-editor-cancel:hover {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.post-editor-body .post-login-submit {
+  width: auto;
+  margin-top: 0;
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
 .posts-filters {
   display: flex;
   flex-wrap: wrap;

@@ -4,10 +4,19 @@ from . import views
 app_name = 'website'
 
 urlpatterns = [
-    # Main page
-  path('', views.index, name='index'),
-    
-    # API endpoints
+    # Main page (serves website/index.html)
+    path('', views.index, name='index'),
+
+    # Auth
+    path('api/auth/login/', views.api_auth_login, name='api_auth_login'),
+    path('api/auth/logout/', views.api_auth_logout, name='api_auth_logout'),
+    path('api/auth/me/', views.api_auth_me, name='api_auth_me'),
+
+    # Posts (CRUD — write requires admin session)
+    path('api/posts/', views.api_posts, name='api_posts'),
+    path('api/posts/<int:pk>/', views.api_post_detail, name='api_post_detail'),
+
+    # Other API endpoints
     path('api/team/', views.api_team, name='api_team'),
     path('api/services/', views.api_services, name='api_services'),
     path('api/projects/', views.api_projects, name='api_projects'),

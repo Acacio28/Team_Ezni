@@ -21,6 +21,7 @@
   <meta name="twitter:image" content="images/Enzi.png">
 
   <title>Enzi Dev</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://api.fontshare.com">
@@ -458,9 +459,23 @@
       </div>
       <div class="posts-toolbar" data-animate="fade-up" data-delay="0">
         <div class="posts-filters" id="postsFilters" role="tablist" aria-label="Post categories"></div>
-        <div class="posts-search-wrap">
-          <i class="fas fa-search"></i>
-          <input type="search" id="postsSearch" class="posts-search" data-i18n-placeholder="posts.search" placeholder="Search posts…" autocomplete="off">
+        <div class="posts-toolbar-right">
+          <div class="posts-search-wrap">
+            <i class="fas fa-search"></i>
+            <input type="search" id="postsSearch" class="posts-search" data-i18n-placeholder="posts.search" placeholder="Search posts…" autocomplete="off">
+          </div>
+          <div class="posts-admin-bar" id="postsAdminBar">
+            <span class="posts-admin-user" id="postsAdminUser" hidden></span>
+            <button type="button" class="posts-admin-btn posts-admin-new" id="postsNewBtn" hidden>
+              <i class="fas fa-plus"></i> <span data-i18n="posts.newPost">New post</span>
+            </button>
+            <button type="button" class="posts-admin-btn posts-admin-logout" id="postsLogoutBtn" hidden>
+              <i class="fas fa-right-from-bracket"></i> <span data-i18n="posts.logout">Logout</span>
+            </button>
+            <button type="button" class="posts-admin-btn posts-admin-login" id="postsLoginBtn">
+              <i class="fas fa-lock"></i> <span data-i18n="posts.login">Admin</span>
+            </button>
+          </div>
         </div>
       </div>
       <div class="posts-grid" id="postsGrid" aria-live="polite"></div>
@@ -1025,6 +1040,92 @@
           <a class="post-share-btn post-share-x" id="postShareX" target="_blank" rel="noopener noreferrer" title="X"><i class="fab fa-x-twitter"></i></a>
         </div>
         <p class="post-share-toast" id="postShareToast" hidden data-i18n="posts.copied">Link copied</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Login Modal -->
+  <div class="post-modal" id="postLoginModal" role="dialog" aria-modal="true" aria-labelledby="postLoginTitle">
+    <div class="post-modal-overlay" id="postLoginOverlay"></div>
+    <div class="post-modal-dialog post-login-dialog">
+      <button class="post-modal-close" id="postLoginClose" aria-label="Close"><i class="fas fa-xmark"></i></button>
+      <div class="post-login-body">
+        <div class="post-login-icon"><i class="fas fa-shield-halved"></i></div>
+        <h2 id="postLoginTitle" data-i18n="posts.loginTitle">Admin login</h2>
+        <p class="post-login-hint" data-i18n="posts.loginHint">Sign in to create, edit or delete posts.</p>
+        <form id="postLoginForm" novalidate>
+          <label class="post-login-label" for="postLoginUser" data-i18n="posts.username">Username</label>
+          <input type="text" id="postLoginUser" name="username" autocomplete="username" required>
+          <label class="post-login-label" for="postLoginPass" data-i18n="posts.password">Password</label>
+          <input type="password" id="postLoginPass" name="password" autocomplete="current-password" required>
+          <p class="post-login-error" id="postLoginError" hidden></p>
+          <button type="submit" class="post-login-submit" id="postLoginSubmit" data-i18n="posts.signIn">Sign in</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Post Editor Modal (create / edit) -->
+  <div class="post-modal" id="postEditorModal" role="dialog" aria-modal="true" aria-labelledby="postEditorTitle">
+    <div class="post-modal-overlay" id="postEditorOverlay"></div>
+    <div class="post-modal-dialog post-editor-dialog">
+      <button class="post-modal-close" id="postEditorClose" aria-label="Close"><i class="fas fa-xmark"></i></button>
+      <div class="post-editor-body">
+        <h2 id="postEditorTitle" data-i18n="posts.newPost">New post</h2>
+        <form id="postEditorForm" novalidate>
+          <div class="post-editor-grid">
+            <div class="post-editor-field post-editor-span2">
+              <label for="postFieldTitle" data-i18n="posts.fieldTitle">Title</label>
+              <input type="text" id="postFieldTitle" name="title" required maxlength="300">
+            </div>
+            <div class="post-editor-field">
+              <label for="postFieldCategory" data-i18n="posts.fieldCategory">Category</label>
+              <input type="text" id="postFieldCategory" name="category" list="postCategoryList" maxlength="50" placeholder="Security, Projects, Training…">
+              <datalist id="postCategoryList"></datalist>
+            </div>
+            <div class="post-editor-field">
+              <label for="postFieldDate" data-i18n="posts.fieldDate">Date</label>
+              <input type="date" id="postFieldDate" name="date" required>
+            </div>
+            <div class="post-editor-field">
+              <label for="postFieldAuthor" data-i18n="posts.fieldAuthor">Author</label>
+              <input type="text" id="postFieldAuthor" name="author" maxlength="100">
+            </div>
+            <div class="post-editor-field">
+              <label for="postFieldAuthorRole" data-i18n="posts.fieldAuthorRole">Author role</label>
+              <input type="text" id="postFieldAuthorRole" name="authorRole" maxlength="100">
+            </div>
+            <div class="post-editor-field">
+              <label for="postFieldReadTime" data-i18n="posts.fieldReadTime">Read time (min)</label>
+              <input type="number" id="postFieldReadTime" name="readTime" min="1" max="120" value="3">
+            </div>
+            <div class="post-editor-field">
+              <label for="postFieldImage" data-i18n="posts.fieldImage">Image URL</label>
+              <input type="url" id="postFieldImage" name="image" maxlength="500" placeholder="https://…">
+            </div>
+            <div class="post-editor-field post-editor-span2">
+              <label for="postFieldExcerpt" data-i18n="posts.fieldExcerpt">Excerpt</label>
+              <textarea id="postFieldExcerpt" name="excerpt" rows="2" maxlength="500"></textarea>
+            </div>
+            <div class="post-editor-field post-editor-span2">
+              <label for="postFieldContent" data-i18n="posts.fieldContent">Content</label>
+              <textarea id="postFieldContent" name="content" rows="12" required></textarea>
+            </div>
+            <div class="post-editor-field post-editor-span2">
+              <label for="postFieldTags" data-i18n="posts.fieldTags">Tags (comma-separated)</label>
+              <input type="text" id="postFieldTags" name="tags" placeholder="Bitdefender, EDR, Government">
+            </div>
+            <label class="post-editor-check post-editor-span2">
+              <input type="checkbox" id="postFieldFeatured" name="featured">
+              <span data-i18n="posts.fieldFeatured">Featured post</span>
+            </label>
+          </div>
+          <p class="post-login-error" id="postEditorError" hidden></p>
+          <div class="post-editor-actions">
+            <button type="button" class="post-editor-cancel" id="postEditorCancel" data-i18n="posts.cancel">Cancel</button>
+            <button type="submit" class="post-login-submit" id="postEditorSave" data-i18n="posts.save">Save</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>

@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import (
     TeamMember, Address, Service, Project, 
     Testimonial, Partner, FAQ, PricingPlan, 
-    ContactMessage, CompanyInfo
+    ContactMessage, CompanyInfo, Post
 )
 
 
@@ -85,6 +85,17 @@ class ContactMessageAdmin(admin.ModelAdmin):
 class CompanyInfoAdmin(admin.ModelAdmin):
     list_display = ['key', 'value', 'updated_at']
     search_fields = ['key', 'value']
+
+
+@admin.register(Post)
+class PostAdmin(admin.ModelAdmin):
+    list_display = ['title', 'category', 'author', 'date', 'featured', 'is_active', 'updated_at']
+    list_filter = ['category', 'featured', 'is_active']
+    search_fields = ['title', 'excerpt', 'content', 'author', 'tags']
+    list_editable = ['featured', 'is_active']
+    prepopulated_fields = {'slug': ('title',)}
+    readonly_fields = ['created_at', 'updated_at']
+    date_hierarchy = 'date'
 
 
 # Customize admin site header and title

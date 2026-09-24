@@ -342,7 +342,35 @@ document.addEventListener('DOMContentLoaded', function () {
       'posts.share': 'Share',
       'posts.copied': 'Link copied',
       'posts.showing': 'Showing {shown} of {total} posts',
-      'posts.catAll': 'All'
+      'posts.catAll': 'All',
+      'posts.login': 'Admin',
+      'posts.logout': 'Logout',
+      'posts.newPost': 'New post',
+      'posts.loginTitle': 'Admin login',
+      'posts.loginHint': 'Sign in to create, edit or delete posts.',
+      'posts.username': 'Username',
+      'posts.password': 'Password',
+      'posts.signIn': 'Sign in',
+      'posts.fieldTitle': 'Title',
+      'posts.fieldCategory': 'Category',
+      'posts.fieldDate': 'Date',
+      'posts.fieldAuthor': 'Author',
+      'posts.fieldAuthorRole': 'Author role',
+      'posts.fieldReadTime': 'Read time (min)',
+      'posts.fieldImage': 'Image URL',
+      'posts.fieldExcerpt': 'Excerpt',
+      'posts.fieldContent': 'Content',
+      'posts.fieldTags': 'Tags (comma-separated)',
+      'posts.fieldFeatured': 'Featured post',
+      'posts.cancel': 'Cancel',
+      'posts.save': 'Save',
+      'posts.editPost': 'Edit post',
+      'posts.deleteConfirm': 'Delete this post?',
+      'posts.delete': 'Delete',
+      'posts.saved': 'Post saved',
+      'posts.deleted': 'Post deleted',
+      'posts.edit': 'Edit',
+      'posts.loadFailed': 'Could not load posts.'
     },
     tet: {
       'hero.badge': 'Solusaun ICT & Digitál ba Empreza',
@@ -427,7 +455,35 @@ document.addEventListener('DOMContentLoaded', function () {
       'posts.share': 'Partaje',
       'posts.copied': 'Link kopia ona',
       'posts.showing': 'Hatudu {shown} ho {total} post',
-      'posts.catAll': 'Hotu'
+      'posts.catAll': 'Hotu',
+      'posts.login': 'Admin',
+      'posts.logout': 'Sai',
+      'posts.newPost': 'Post foun',
+      'posts.loginTitle': 'Login admin',
+      'posts.loginHint': 'Login hodi kria, hatadikin ohin hanesa post sira.',
+      'posts.username': 'Uzúriáriu',
+      'posts.password': 'Senha',
+      'posts.signIn': 'Login',
+      'posts.fieldTitle': 'Titulu',
+      'posts.fieldCategory': 'Kategoria',
+      'posts.fieldDate': 'Data',
+      'posts.fieldAuthor': 'Autor',
+      'posts.fieldAuthorRole': 'Kargu autor',
+      'posts.fieldReadTime': 'Tempu hanoi (min)',
+      'posts.fieldImage': 'URL imajen',
+      'posts.fieldExcerpt': 'Resumu',
+      'posts.fieldContent': 'Konteúdu',
+      'posts.fieldTags': 'Etika (separadu ho vírgula)',
+      'posts.fieldFeatured': 'Post destakadu',
+      'posts.cancel': 'Kansela',
+      'posts.save': 'Grava',
+      'posts.editPost': 'Hatadikin post',
+      'posts.deleteConfirm': 'Hapus post ida ne’e?',
+      'posts.delete': 'Hapus',
+      'posts.saved': 'Post grava ona',
+      'posts.deleted': 'Post hapus ona',
+      'posts.edit': 'Hatadikin',
+      'posts.loadFailed': 'La konsege karrega post sira.'
     }
   };
 
@@ -541,6 +597,8 @@ document.getElementById('teamModalClose').addEventListener('click', closeTeamMod
 // Close modal on ESC key press
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') {
+    if (typeof closePostEditor === 'function') closePostEditor();
+    if (typeof closePostLogin === 'function') closePostLogin();
     closeTeamModal();
     closeActivityGallery();
     closeSignupModal();
@@ -704,14 +762,25 @@ function closeSignupModal() {
   });
 })();
 
-// ===== Posts Section (dynamic) =====
+// ===== Posts Section (dynamic + admin API) =====
 (function () {
   var PAGE_SIZE = 6;
+  var API_POSTS = '/api/posts/';
+  var API_LOGIN = '/api/auth/login/';
+  var API_LOGOUT = '/api/auth/logout/';
+  var API_ME = '/api/auth/me/';
+
   var state = {
     category: 'all',
     query: '',
     visible: PAGE_SIZE,
-    activeId: null
+    activeId: null,
+    posts: [],
+    isAdmin: false,
+    username: null,
+    editingId: null,
+    loading: true,
+    loadError: false
   };
 
   function t(key) {
@@ -753,6 +822,31 @@ function closeSignupModal() {
       .replace(/'/g, '&#39;');
   }
 
+  function getCsrfToken() {
+    var match = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
+    return match ? decodeURIComponent(match[1]) : '';
+  }
+
+  function apiFetch(url, options) {
+    options = options || {};
+    options.credentials = 'same-origin';
+    options.headers = options.headers || {};
+    if (options.body && !(options.body instanceof FormData)) {
+      options.headers['Content-Type'] = options.headers['Content-Type'] || 'application/json';
+    }
+    var method = (options.method || 'GET').toUpperCase();
+    if (method !== 'GET' && method !== 'HEAD') {
+      options.headers['X-CSRFToken'] = getCsrfToken();
+    }
+    return fetch(url, options).then(function (res) {
+      return res.json().catch(function () { return {}; }).then(function (data) {
+        data.__status = res.status;
+        data.__ok = res.ok;
+        return data;
+      });
+    });
+  }
+
   function contentToHtml(content) {
     if (!content) return '';
     return String(content)
@@ -783,8 +877,24 @@ function closeSignupModal() {
       .join('');
   }
 
+  function getCategories() {
+    var base = (typeof POST_CATEGORIES !== 'undefined' && Array.isArray(POST_CATEGORIES))
+      ? POST_CATEGORIES.slice()
+      : [{ key: 'all', label: 'All' }];
+    var seen = {};
+    base.forEach(function (c) { seen[String(c.key).toLowerCase()] = true; });
+    state.posts.forEach(function (p) {
+      var cat = String(p.category || '').trim();
+      if (cat && !seen[cat.toLowerCase()]) {
+        seen[cat.toLowerCase()] = true;
+        base.push({ key: cat, label: cat });
+      }
+    });
+    return base;
+  }
+
   function getFiltered() {
-    var list = (typeof POSTS !== 'undefined' && Array.isArray(POSTS)) ? POSTS.slice() : [];
+    var list = state.posts.slice();
     list.sort(function (a, b) {
       if (a.featured && !b.featured) return -1;
       if (!a.featured && b.featured) return 1;
@@ -829,9 +939,10 @@ function closeSignupModal() {
 
   function renderFilters() {
     var wrap = document.getElementById('postsFilters');
-    if (!wrap || typeof POST_CATEGORIES === 'undefined') return;
+    if (!wrap) return;
+    var cats = getCategories();
     wrap.innerHTML = '';
-    POST_CATEGORIES.forEach(function (cat, i) {
+    cats.forEach(function (cat) {
       var btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'posts-filter-btn' + (state.category === cat.key ? ' active' : '');
@@ -845,11 +956,41 @@ function closeSignupModal() {
       });
       wrap.appendChild(btn);
     });
+    var dl = document.getElementById('postCategoryList');
+    if (dl) {
+      dl.innerHTML = '';
+      cats.forEach(function (c) {
+        if (c.key === 'all') return;
+        var opt = document.createElement('option');
+        opt.value = c.label;
+        dl.appendChild(opt);
+      });
+    }
+  }
+
+  function renderAdminBar() {
+    var loginBtn = document.getElementById('postsLoginBtn');
+    var logoutBtn = document.getElementById('postsLogoutBtn');
+    var newBtn = document.getElementById('postsNewBtn');
+    var userEl = document.getElementById('postsAdminUser');
+    if (loginBtn) loginBtn.hidden = state.isAdmin;
+    if (logoutBtn) logoutBtn.hidden = !state.isAdmin;
+    if (newBtn) newBtn.hidden = !state.isAdmin;
+    if (userEl) {
+      userEl.hidden = !state.isAdmin;
+      userEl.textContent = state.username || '';
+    }
   }
 
   function cardHtml(p, index) {
     var isFeaturedCard = !!p.featured && state.category === 'all' && !state.query;
     var delay = (index % 3) * 80;
+    var adminActions = state.isAdmin
+      ? '<div class="post-card-actions">' +
+          '<button type="button" class="post-card-action post-card-edit" data-action="edit" data-id="' + escapeHtml(p.id) + '" title="' + escapeHtml(t('posts.edit')) + '"><i class="fas fa-pen"></i></button>' +
+          '<button type="button" class="post-card-action post-card-delete" data-action="delete" data-id="' + escapeHtml(p.id) + '" title="' + escapeHtml(t('posts.delete')) + '"><i class="fas fa-trash"></i></button>' +
+        '</div>'
+      : '';
     var media = p.image
       ? '<div class="post-card-media">' +
           (p.featured ? '<span class="post-featured-badge">' + escapeHtml(t('posts.featured')) + '</span>' : '') +
@@ -863,10 +1004,11 @@ function closeSignupModal() {
         '</div>';
 
     return (
-      '<button type="button" class="post-card' + (isFeaturedCard ? ' post-card-featured' : '') + '" ' +
+      '<article class="post-card' + (isFeaturedCard ? ' post-card-featured' : '') + '" ' +
         'data-animate="fade-up" data-delay="' + delay + '" data-post-id="' + escapeHtml(p.id) + '" ' +
-        'aria-label="' + escapeHtml(p.title) + '">' +
+        'role="button" tabindex="0" aria-label="' + escapeHtml(p.title) + '">' +
         media +
+        adminActions +
         '<div class="post-card-body">' +
           '<h3>' + escapeHtml(p.title) + '</h3>' +
           '<p class="post-card-excerpt">' + escapeHtml(p.excerpt || '') + '</p>' +
@@ -876,7 +1018,7 @@ function closeSignupModal() {
             '<span class="post-card-read">' + escapeHtml(p.readTime || 3) + ' ' + escapeHtml(t('posts.read')) + '</span>' +
           '</div>' +
         '</div>' +
-      '</button>'
+      '</article>'
     );
   }
 
@@ -888,6 +1030,11 @@ function closeSignupModal() {
       .replace('{total}', String(total));
   }
 
+  function findPost(id) {
+    var key = String(id);
+    return state.posts.find(function (p) { return String(p.id) === key; });
+  }
+
   window.renderPosts = function renderPosts() {
     var grid = document.getElementById('postsGrid');
     var empty = document.getElementById('postsEmpty');
@@ -895,6 +1042,22 @@ function closeSignupModal() {
     if (!grid) return;
 
     renderFilters();
+    renderAdminBar();
+
+    if (state.loading) {
+      grid.innerHTML = '<div class="posts-empty posts-loading"><i class="fas fa-circle-notch fa-spin"></i><p>…</p></div>';
+      if (empty) empty.hidden = true;
+      return;
+    }
+
+    if (state.loadError && state.posts.length === 0) {
+      grid.innerHTML = '';
+      if (empty) {
+        empty.hidden = false;
+        empty.innerHTML = '<i class="fas fa-triangle-exclamation"></i><p>' + escapeHtml(t('posts.loadFailed')) + '</p>';
+      }
+      return;
+    }
 
     var filtered = getFiltered();
     var visible = filtered.slice(0, state.visible);
@@ -902,10 +1065,9 @@ function closeSignupModal() {
     grid.innerHTML = visible.map(cardHtml).join('');
 
     if (empty) {
+      empty.hidden = filtered.length !== 0;
       if (filtered.length === 0) {
-        empty.hidden = false;
-      } else {
-        empty.hidden = true;
+        empty.innerHTML = '<i class="fas fa-newspaper"></i><p>' + escapeHtml(t('posts.empty')) + '</p>';
       }
     }
 
@@ -916,8 +1078,27 @@ function closeSignupModal() {
     updateCount(visible.length, filtered.length);
 
     grid.querySelectorAll('.post-card').forEach(function (card) {
-      card.addEventListener('click', function () {
+      function openFromCard(e) {
+        if (e.target.closest('.post-card-actions')) return;
         openPostModal(card.getAttribute('data-post-id'));
+      }
+      card.addEventListener('click', openFromCard);
+      card.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openFromCard(e);
+        }
+      });
+    });
+
+    grid.querySelectorAll('.post-card-action').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        e.preventDefault();
+        var id = btn.getAttribute('data-id');
+        var action = btn.getAttribute('data-action');
+        if (action === 'edit') openEditor(id);
+        else if (action === 'delete') deletePost(id);
       });
     });
 
@@ -925,62 +1106,78 @@ function closeSignupModal() {
   };
 
   window.openPostModal = function openPostModal(id) {
-    var post = (typeof POSTS !== 'undefined' ? POSTS : []).find(function (p) {
-      return p.id === id;
-    });
-    if (!post) return;
+    var listPost = findPost(id);
+    if (!listPost) return;
 
     state.activeId = id;
 
-    var media = document.getElementById('postModalMedia');
-    var img = document.getElementById('postModalImage');
-    if (media && img) {
-      if (post.image) {
-        media.hidden = false;
-        img.src = post.image;
-        img.alt = post.title || '';
-      } else {
-        media.hidden = true;
-        img.removeAttribute('src');
+    function fill(post) {
+      var media = document.getElementById('postModalMedia');
+      var img = document.getElementById('postModalImage');
+      if (media && img) {
+        if (post.image) {
+          media.hidden = false;
+          img.src = post.image;
+          img.alt = post.title || '';
+        } else {
+          media.hidden = true;
+          img.removeAttribute('src');
+        }
       }
+
+      var cat = document.getElementById('postModalCategory');
+      var date = document.getElementById('postModalDate');
+      var read = document.getElementById('postModalRead');
+      var title = document.getElementById('postModalTitle');
+      var avatar = document.getElementById('postModalAvatar');
+      var author = document.getElementById('postModalAuthor');
+      var role = document.getElementById('postModalAuthorRole');
+      var content = document.getElementById('postModalContent');
+      var tags = document.getElementById('postModalTags');
+
+      if (cat) cat.textContent = post.category || '';
+      if (date) date.textContent = formatDate(post.date);
+      if (read) read.textContent = (post.readTime || 3) + ' ' + t('posts.read');
+      if (title) title.textContent = post.title || '';
+      if (avatar) {
+        var initials = String(post.author || 'E')
+          .split(/\s+/)
+          .map(function (w) { return w.charAt(0); })
+          .join('')
+          .slice(0, 2)
+          .toUpperCase();
+        avatar.textContent = initials;
+      }
+      if (author) author.textContent = post.author || '';
+      if (role) role.textContent = post.authorRole || '';
+      if (content) content.innerHTML = contentToHtml(post.content || post.excerpt || '');
+      if (tags) {
+        tags.innerHTML = (post.tags || [])
+          .map(function (tag) {
+            return '<span class="post-tag">' + escapeHtml(tag) + '</span>';
+          })
+          .join('');
+      }
+
+      updatePostModalChrome();
+      updateShareLinks(post);
     }
 
-    var cat = document.getElementById('postModalCategory');
-    var date = document.getElementById('postModalDate');
-    var read = document.getElementById('postModalRead');
-    var title = document.getElementById('postModalTitle');
-    var avatar = document.getElementById('postModalAvatar');
-    var author = document.getElementById('postModalAuthor');
-    var role = document.getElementById('postModalAuthorRole');
-    var content = document.getElementById('postModalContent');
-    var tags = document.getElementById('postModalTags');
-
-    if (cat) cat.textContent = post.category || '';
-    if (date) date.textContent = formatDate(post.date);
-    if (read) read.textContent = (post.readTime || 3) + ' ' + t('posts.read');
-    if (title) title.textContent = post.title || '';
-    if (avatar) {
-      var initials = String(post.author || 'E')
-        .split(/\s+/)
-        .map(function (w) { return w.charAt(0); })
-        .join('')
-        .slice(0, 2)
-        .toUpperCase();
-      avatar.textContent = initials;
+    if (typeof listPost.content === 'string' && listPost.content) {
+      fill(listPost);
+    } else {
+      apiFetch(API_POSTS + id + '/').then(function (data) {
+        if (data.post) {
+          var idx = state.posts.findIndex(function (p) { return String(p.id) === String(id); });
+          if (idx >= 0) state.posts[idx] = Object.assign({}, state.posts[idx], data.post);
+          fill(data.post);
+        } else {
+          fill(listPost);
+        }
+      }).catch(function () {
+        fill(listPost);
+      });
     }
-    if (author) author.textContent = post.author || '';
-    if (role) role.textContent = post.authorRole || '';
-    if (content) content.innerHTML = contentToHtml(post.content || post.excerpt || '');
-    if (tags) {
-      tags.innerHTML = (post.tags || [])
-        .map(function (tag) {
-          return '<span class="post-tag">' + escapeHtml(tag) + '</span>';
-        })
-        .join('');
-    }
-
-    updatePostModalChrome();
-    updateShareLinks(post);
 
     var modal = document.getElementById('postModal');
     if (modal) {
@@ -995,7 +1192,7 @@ function closeSignupModal() {
     var modal = document.getElementById('postModal');
     if (modal) {
       modal.classList.remove('active');
-      if (!document.querySelector('.activity-gallery-modal.active, .activity-share-modal.active, .activity-signup-modal.active, .team-modal.active')) {
+      if (!document.querySelector('.post-modal.active:not(#postModal), .activity-gallery-modal.active, .activity-share-modal.active, .activity-signup-modal.active, .team-modal.active')) {
         document.body.style.overflow = '';
       }
     }
@@ -1011,9 +1208,7 @@ function closeSignupModal() {
     if (toast) toast.setAttribute('data-i18n', 'posts.copied');
     if (state.activeId) {
       var read = document.getElementById('postModalRead');
-      var post = (typeof POSTS !== 'undefined' ? POSTS : []).find(function (p) {
-        return p.id === state.activeId;
-      });
+      var post = findPost(state.activeId);
       if (read && post) {
         read.textContent = (post.readTime || 3) + ' ' + t('posts.read');
       }
@@ -1033,6 +1228,285 @@ function closeSignupModal() {
     if (fb) fb.href = 'https://www.facebook.com/sharer/sharer.php?u=' + encUrl;
     if (x) x.href = 'https://twitter.com/intent/tweet?text=' + encText + '&url=' + encUrl;
   }
+
+  // ---- Data loading ----
+  function loadPosts() {
+    state.loading = true;
+    state.loadError = false;
+    renderPosts();
+    return apiFetch(API_POSTS).then(function (data) {
+      state.posts = Array.isArray(data.posts) ? data.posts : [];
+      state.loading = false;
+      state.loadError = !data.__ok;
+      renderPosts();
+    }).catch(function () {
+      state.posts = [];
+      state.loading = false;
+      state.loadError = true;
+      renderPosts();
+    });
+  }
+
+  function refreshMe() {
+    return apiFetch(API_ME).then(function (data) {
+      state.isAdmin = !!(data.authenticated && data.user && data.user.isStaff);
+      state.username = state.isAdmin && data.user ? data.user.username : null;
+      renderAdminBar();
+      renderPosts();
+    }).catch(function () {
+      state.isAdmin = false;
+      state.username = null;
+      renderAdminBar();
+    });
+  }
+
+  // ---- Login / logout ----
+  function openLoginModal() {
+    var modal = document.getElementById('postLoginModal');
+    if (!modal) return;
+    var err = document.getElementById('postLoginError');
+    if (err) { err.hidden = true; err.textContent = ''; }
+    var form = document.getElementById('postLoginForm');
+    if (form) form.reset();
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    var user = document.getElementById('postLoginUser');
+    if (user) user.focus();
+  }
+
+  function closeLoginModal() {
+    var modal = document.getElementById('postLoginModal');
+    if (modal) modal.classList.remove('active');
+    if (!document.querySelector('.post-modal.active, .activity-gallery-modal.active, .activity-share-modal.active, .activity-signup-modal.active, .team-modal.active')) {
+      document.body.style.overflow = '';
+    }
+  }
+
+  function showLoginError(msg) {
+    var err = document.getElementById('postLoginError');
+    if (!err) return;
+    err.textContent = msg;
+    err.hidden = false;
+  }
+
+  function bindLogin() {
+    var openBtn = document.getElementById('postsLoginBtn');
+    if (openBtn) openBtn.addEventListener('click', openLoginModal);
+
+    var closeBtn = document.getElementById('postLoginClose');
+    if (closeBtn) closeBtn.addEventListener('click', closeLoginModal);
+    var overlay = document.getElementById('postLoginOverlay');
+    if (overlay) overlay.addEventListener('click', closeLoginModal);
+
+    var form = document.getElementById('postLoginForm');
+    if (form) {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var username = (document.getElementById('postLoginUser') || {}).value || '';
+        var password = (document.getElementById('postLoginPass') || {}).value || '';
+        username = username.trim();
+        if (!username || !password) {
+          showLoginError(t('posts.username') + ' / ' + t('posts.password'));
+          return;
+        }
+        var submit = document.getElementById('postLoginSubmit');
+        if (submit) submit.disabled = true;
+        apiFetch(API_LOGIN, {
+          method: 'POST',
+          body: JSON.stringify({ username: username, password: password })
+        }).then(function (data) {
+          if (submit) submit.disabled = false;
+          if (data.success) {
+            closeLoginModal();
+            return refreshMe();
+          }
+          showLoginError(data.message || 'Login failed');
+        }).catch(function () {
+          if (submit) submit.disabled = false;
+          showLoginError('Login failed');
+        });
+      });
+    }
+
+    var logoutBtn = document.getElementById('postsLogoutBtn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', function () {
+        apiFetch(API_LOGOUT, { method: 'POST' }).then(function () {
+          state.isAdmin = false;
+          state.username = null;
+          renderAdminBar();
+          renderPosts();
+        });
+      });
+    }
+  }
+
+  // ---- Editor (create / edit) ----
+  function openEditor(id) {
+    if (!state.isAdmin) return;
+    var modal = document.getElementById('postEditorModal');
+    if (!modal) return;
+
+    state.editingId = id != null && id !== '' ? String(id) : null;
+    var title = document.getElementById('postEditorTitle');
+    var err = document.getElementById('postEditorError');
+    if (err) { err.hidden = true; err.textContent = ''; }
+
+    var fields = {
+      title: document.getElementById('postFieldTitle'),
+      category: document.getElementById('postFieldCategory'),
+      date: document.getElementById('postFieldDate'),
+      author: document.getElementById('postFieldAuthor'),
+      authorRole: document.getElementById('postFieldAuthorRole'),
+      readTime: document.getElementById('postFieldReadTime'),
+      image: document.getElementById('postFieldImage'),
+      excerpt: document.getElementById('postFieldExcerpt'),
+      content: document.getElementById('postFieldContent'),
+      tags: document.getElementById('postFieldTags'),
+      featured: document.getElementById('postFieldFeatured')
+    };
+
+    if (state.editingId) {
+      if (title) title.textContent = t('posts.editPost');
+      // List API has no content — always fetch full post before fill
+      apiFetch(API_POSTS + state.editingId + '/').then(function (data) {
+        if (!data.post) return;
+        var idx = state.posts.findIndex(function (p) { return String(p.id) === String(state.editingId); });
+        if (idx >= 0) state.posts[idx] = Object.assign({}, state.posts[idx], data.post);
+        fillEditor(fields, data.post);
+      }).catch(function () {
+        var post = findPost(state.editingId);
+        if (post) fillEditor(fields, post);
+      });
+    } else {
+      if (title) title.textContent = t('posts.newPost');
+      Object.keys(fields).forEach(function (k) {
+        var el = fields[k];
+        if (!el) return;
+        if (el.type === 'checkbox') el.checked = false;
+        else if (k === 'date') el.value = new Date().toISOString().slice(0, 10);
+        else if (k === 'readTime') el.value = '3';
+        else el.value = '';
+      });
+    }
+
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    if (fields.title) fields.title.focus();
+  }
+
+  function fillEditor(fields, post) {
+    if (fields.title) fields.title.value = post.title || '';
+    if (fields.category) fields.category.value = post.category || '';
+    if (fields.date) fields.date.value = post.date || '';
+    if (fields.author) fields.author.value = post.author || '';
+    if (fields.authorRole) fields.authorRole.value = post.authorRole || '';
+    if (fields.readTime) fields.readTime.value = String(post.readTime || 3);
+    if (fields.image) fields.image.value = post.image || '';
+    if (fields.excerpt) fields.excerpt.value = post.excerpt || '';
+    if (fields.content) fields.content.value = post.content || '';
+    if (fields.tags) fields.tags.value = (post.tags || []).join(', ');
+    if (fields.featured) fields.featured.checked = !!post.featured;
+  }
+
+  function closeEditor() {
+    var modal = document.getElementById('postEditorModal');
+    if (modal) modal.classList.remove('active');
+    state.editingId = null;
+    if (!document.querySelector('.post-modal.active, .activity-gallery-modal.active, .activity-share-modal.active, .activity-signup-modal.active, .team-modal.active')) {
+      document.body.style.overflow = '';
+    }
+  }
+
+  function showEditorError(msg) {
+    var err = document.getElementById('postEditorError');
+    if (!err) return;
+    err.textContent = msg;
+    err.hidden = false;
+  }
+
+  function bindEditor() {
+    var newBtn = document.getElementById('postsNewBtn');
+    if (newBtn) newBtn.addEventListener('click', function () { openEditor(null); });
+
+    var closeBtn = document.getElementById('postEditorClose');
+    if (closeBtn) closeBtn.addEventListener('click', closeEditor);
+    var cancel = document.getElementById('postEditorCancel');
+    if (cancel) cancel.addEventListener('click', closeEditor);
+    var overlay = document.getElementById('postEditorOverlay');
+    if (overlay) overlay.addEventListener('click', closeEditor);
+
+    var form = document.getElementById('postEditorForm');
+    if (form) {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!state.isAdmin) return;
+
+        var payload = {
+          title: (document.getElementById('postFieldTitle') || {}).value || '',
+          category: (document.getElementById('postFieldCategory') || {}).value || 'Company',
+          date: (document.getElementById('postFieldDate') || {}).value || '',
+          author: (document.getElementById('postFieldAuthor') || {}).value || '',
+          authorRole: (document.getElementById('postFieldAuthorRole') || {}).value || '',
+          readTime: parseInt((document.getElementById('postFieldReadTime') || {}).value, 10) || 3,
+          image: (document.getElementById('postFieldImage') || {}).value || '',
+          excerpt: (document.getElementById('postFieldExcerpt') || {}).value || '',
+          content: (document.getElementById('postFieldContent') || {}).value || '',
+          tags: ((document.getElementById('postFieldTags') || {}).value || '')
+            .split(',')
+            .map(function (s) { return s.trim(); })
+            .filter(Boolean),
+          featured: !!((document.getElementById('postFieldFeatured') || {}).checked)
+        };
+
+        if (!payload.title.trim() || !payload.content.trim() || !payload.date) {
+          showEditorError(t('posts.fieldTitle') + ' / ' + t('posts.fieldContent') + ' / ' + t('posts.fieldDate'));
+          return;
+        }
+
+        var saveBtn = document.getElementById('postEditorSave');
+        if (saveBtn) saveBtn.disabled = true;
+
+        var isEdit = !!state.editingId;
+        var url = isEdit ? API_POSTS + state.editingId + '/' : API_POSTS;
+        var method = isEdit ? 'PUT' : 'POST';
+
+        apiFetch(url, { method: method, body: JSON.stringify(payload) })
+          .then(function (data) {
+            if (saveBtn) saveBtn.disabled = false;
+            if (data.success) {
+              closeEditor();
+              return loadPosts();
+            }
+            var msgs = data.errors
+              ? Object.keys(data.errors).map(function (k) { return data.errors[k]; }).join(' ')
+              : (data.message || 'Error');
+            showEditorError(msgs);
+          })
+          .catch(function () {
+            if (saveBtn) saveBtn.disabled = false;
+            showEditorError('Error saving post');
+          });
+      });
+    }
+  }
+
+  function deletePost(id) {
+    if (!state.isAdmin) return;
+    if (!window.confirm(t('posts.deleteConfirm'))) return;
+    apiFetch(API_POSTS + id + '/', { method: 'DELETE' }).then(function (data) {
+      if (data.success) {
+        if (String(state.activeId) === String(id)) closePostModal();
+        return loadPosts();
+      }
+      window.alert(data.message || 'Delete failed');
+    }).catch(function () {
+      window.alert('Delete failed');
+    });
+  }
+
+  window.closePostEditor = closeEditor;
+  window.closePostLogin = closeLoginModal;
 
   function bindPostsUi() {
     var search = document.getElementById('postsSearch');
@@ -1103,15 +1577,21 @@ function closeSignupModal() {
       try { document.execCommand('copy'); } catch (err) {}
       document.body.removeChild(ta);
     }
+
+    bindLogin();
+    bindEditor();
+  }
+
+  function boot() {
+    bindPostsUi();
+    refreshMe().then(function () {
+      return loadPosts();
+    });
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () {
-      bindPostsUi();
-      renderPosts();
-    });
+    document.addEventListener('DOMContentLoaded', boot);
   } else {
-    bindPostsUi();
-    renderPosts();
+    boot();
   }
 })();
