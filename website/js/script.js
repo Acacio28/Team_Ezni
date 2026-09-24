@@ -321,7 +321,11 @@ document.addEventListener('DOMContentLoaded', function () {
       'activities.signupSuccess': 'Registration received',
       'activities.signupRef': 'Your reference',
       'activities.signupNote': 'Our team will contact you with the training schedule and details.',
-      'activities.signupAgain': 'Register another person'
+      'activities.signupAgain': 'Register another person',
+      'team.label': 'The People',
+      'team.title': 'Meet the team',
+      'team.sub': 'Certified engineers, developers and support specialists based in Dili — on call when you need us.',
+      'team.viewProfile': 'View profile'
     },
     tet: {
       'hero.badge': 'Solusaun ICT & Digitál ba Empreza',
@@ -385,7 +389,11 @@ document.addEventListener('DOMContentLoaded', function () {
       'activities.signupSuccess': 'Rejistrasaun simu ona',
       'activities.signupRef': 'Ita-nia referénsia',
       'activities.signupNote': 'Ami-nia ekipa sei kontaktu ita ho oráriu no detallu formasaun nian.',
-      'activities.signupAgain': 'Rejistu ema seluk'
+      'activities.signupAgain': 'Rejistu ema seluk',
+      'team.label': 'Ema Sira',
+      'team.title': 'Hasoru ami-nia ekipa',
+      'team.sub': 'Engenheiru sertifikadu, dezenvolvedor no espesialista apoiu bazeia iha Dili — pronto bainhira ita presiza.',
+      'team.viewProfile': 'Haree perfil'
     }
   };
 

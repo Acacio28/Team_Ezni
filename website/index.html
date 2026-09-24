@@ -440,138 +440,91 @@
     </div>
   </section>
 
-  <!-- Team Section -->
-  <section class="section section-alt" id="team">
-    <div class="container">
+  <!-- Team Section (kinos exact) -->
+  <section class="section-team" id="team">
+    <div class="team-container">
       <div class="team-header">
-        <div class="team-header-left">
-          <span class="team-label">THE PEOPLE</span>
-          <h2 class="team-title">Meet the <span class="text-gradient">team.</span></h2>
+        <div class="team-header-left" data-animate="fade-up" data-delay="0">
+          <p class="team-label" data-i18n="team.label">The People</p>
+          <h2 class="team-title">
+            <span data-i18n="team.title">Meet the team</span><span class="text-gold">.</span>
+          </h2>
         </div>
-        <div class="team-header-right">
-          <p>Certified engineers, developers and support specialists based in Dili — on call when you need us.</p>
+        <div class="team-header-right" data-animate="fade-up" data-delay="100">
+          <p data-i18n="team.sub">Certified engineers, developers and support specialists based in Dili — on call when you need us.</p>
         </div>
       </div>
       <div class="team-grid">
-        <div class="team-card spotlight-card">
-          <div class="team-photo-wrapper">
-            <img src="images/team/Acacio.jpg" alt="Acacio" class="team-photo">
-            <div class="team-photo-overlay">
-              <div class="team-social">
-                <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                <a href="#"><i class="fas fa-envelope"></i></a>
-              </div>
-            </div>
+        <button type="button" class="team-member" data-animate="fade-up" data-delay="0" onclick="openTeamModal(this)" data-name="Acacio" data-role="Director" data-bio="Acacio is the Director of Enzi Dev, an ICT, cybersecurity and software development company based in Dili, Timor-Leste." data-photo="images/team/Acacio.jpg" data-email="enzi23dev@gmail.com" data-phone="+670 76726974">
+          <div class="team-photo-frame">
+            <img src="images/team/Acacio.jpg" alt="Acacio" class="team-photo" loading="lazy">
+            <div class="team-photo-bar"></div>
+            <div class="team-photo-overlay"><span class="team-view-chip" data-i18n="team.viewProfile">View profile</span></div>
           </div>
-          <div class="team-info">
-            <h3>Acacio</h3>
-            <span class="team-role">Director</span>
-            <p>Acacio is the Director of Enzi Dev, an ICT, cybersecurity and software development company based in Dili, Timor-Leste.</p>
-            <a href="javascript:void(0)" class="team-link" onclick="openTeamModal(this)" data-name="Acacio" data-role="Director" data-bio="Acacio is the Director of Enzi Dev." data-photo="images/team/Acacio.jpg" data-email="enzi23dev@gmail.com" data-phone="+670 76726974">View profile <i class="fas fa-arrow-right"></i></a>
+          <h3>Acacio</h3>
+          <p class="team-role">Director</p>
+          <p class="team-bio">Acacio is the Director of Enzi Dev, an ICT, cybersecurity and software development company based in Dili, Timor-Leste.</p>
+        </button>
+        <button type="button" class="team-member" data-animate="fade-up" data-delay="80" onclick="openTeamModal(this)" data-name="Frenky" data-role="Business Manager" data-bio="Frenky is Business Manager at Enzi Dev, supporting the company's business operations in Dili, Timor-Leste." data-photo="images/team/Frenky.jpg" data-email="enzi23dev@gmail.com" data-phone="+670 76726974">
+          <div class="team-photo-frame">
+            <img src="images/team/Frenky.jpg" alt="Frenky" class="team-photo" loading="lazy">
+            <div class="team-photo-bar"></div>
+            <div class="team-photo-overlay"><span class="team-view-chip" data-i18n="team.viewProfile">View profile</span></div>
           </div>
-        </div>
-        <div class="team-card spotlight-card">
-          <div class="team-photo-wrapper">
-            <img src="images/team/Frenky.jpg" alt="Frenky" class="team-photo">
-            <div class="team-photo-overlay">
-              <div class="team-social">
-                <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                <a href="#"><i class="fas fa-envelope"></i></a>
-              </div>
-            </div>
+          <h3>Frenky</h3>
+          <p class="team-role">Business Manager</p>
+          <p class="team-bio">Frenky is Business Manager at Enzi Dev, supporting the company's business operations in Dili, Timor-Leste.</p>
+        </button>
+        <button type="button" class="team-member" data-animate="fade-up" data-delay="160" onclick="openTeamModal(this)" data-name="Xisto" data-role="Networking" data-bio="Xisto is a Networking professional at Enzi Dev, supporting efficient network operations and reliable infrastructure." data-photo="images/team/Xisto.jpg" data-email="enzi23dev@gmail.com" data-phone="+670 76726974">
+          <div class="team-photo-frame">
+            <img src="images/team/Xisto.jpg" alt="Xisto" class="team-photo" loading="lazy">
+            <div class="team-photo-bar"></div>
+            <div class="team-photo-overlay"><span class="team-view-chip" data-i18n="team.viewProfile">View profile</span></div>
           </div>
-          <div class="team-info">
-            <h3>Frenky</h3>
-            <span class="team-role">Business Manager</span>
-            <p>Frenky is Business Manager at Enzi Dev, supporting the company's business operations in Dili, Timor-Leste.</p>
-            <a href="javascript:void(0)" class="team-link" onclick="openTeamModal(this)" data-name="Frenky" data-role="Business Manager" data-bio="Frenky is Business Manager at Enzi Dev." data-photo="images/team/Frenky.jpg" data-email="enzi23dev@gmail.com" data-phone="+670 76726974">View profile <i class="fas fa-arrow-right"></i></a>
+          <h3>Xisto</h3>
+          <p class="team-role">Networking</p>
+          <p class="team-bio">Xisto is a Networking professional at Enzi Dev, supporting efficient network operations and reliable infrastructure.</p>
+        </button>
+        <button type="button" class="team-member" data-animate="fade-up" data-delay="240" onclick="openTeamModal(this)" data-name="Ezequel" data-role="IT Manager" data-bio="Ezequel is an IT Manager at Enzi Dev, supporting the company's ICT, cybersecurity, and software development operations." data-photo="images/team/Ezequel.jpg" data-email="enzi23dev@gmail.com" data-phone="+670 76726974">
+          <div class="team-photo-frame">
+            <img src="images/team/Ezequel.jpg" alt="Ezequel" class="team-photo" loading="lazy">
+            <div class="team-photo-bar"></div>
+            <div class="team-photo-overlay"><span class="team-view-chip" data-i18n="team.viewProfile">View profile</span></div>
           </div>
-        </div>
-        <div class="team-card spotlight-card">
-          <div class="team-photo-wrapper">
-            <img src="images/team/Xisto.jpg" alt="Xisto" class="team-photo">
-            <div class="team-photo-overlay">
-              <div class="team-social">
-                <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                <a href="#"><i class="fas fa-envelope"></i></a>
-              </div>
-            </div>
+          <h3>Ezequel</h3>
+          <p class="team-role">IT Manager</p>
+          <p class="team-bio">Ezequel is an IT Manager at Enzi Dev, supporting the company's ICT, cybersecurity, and software development operations.</p>
+        </button>
+        <button type="button" class="team-member" data-animate="fade-up" data-delay="0" onclick="openTeamModal(this)" data-name="Reinildo" data-role="Networking" data-bio="Reinildo is a Networking professional at Enzi Dev, supporting the planning, implementation, and maintenance of network infrastructure." data-photo="images/team/Reinildo.jpg" data-email="enzi23dev@gmail.com" data-phone="+670 76726974">
+          <div class="team-photo-frame">
+            <img src="images/team/Reinildo.jpg" alt="Reinildo" class="team-photo" loading="lazy">
+            <div class="team-photo-bar"></div>
+            <div class="team-photo-overlay"><span class="team-view-chip" data-i18n="team.viewProfile">View profile</span></div>
           </div>
-          <div class="team-info">
-            <h3>Xisto</h3>
-            <span class="team-role">Networking</span>
-            <p>Xisto is a Networking professional at Enzi Dev, supporting efficient network operations and reliable infrastructure.</p>
-            <a href="javascript:void(0)" class="team-link" onclick="openTeamModal(this)" data-name="Xisto" data-role="Networking" data-bio="Xisto is a Networking professional at Enzi Dev." data-photo="images/team/Xisto.jpg" data-email="enzi23dev@gmail.com" data-phone="+670 76726974">View profile <i class="fas fa-arrow-right"></i></a>
+          <h3>Reinildo</h3>
+          <p class="team-role">Networking</p>
+          <p class="team-bio">Reinildo is a Networking professional at Enzi Dev, supporting the planning, implementation, and maintenance of network infrastructure.</p>
+        </button>
+        <button type="button" class="team-member" data-animate="fade-up" data-delay="80" onclick="openTeamModal(this)" data-name="Joao" data-role="System Analyst" data-bio="Joao is a System Analyst at Enzi Dev, supporting the analysis and improvement of systems." data-photo="images/team/joao.jpg" data-email="enzi23dev@gmail.com" data-phone="+670 76726974">
+          <div class="team-photo-frame">
+            <img src="images/team/joao.jpg" alt="Joao" class="team-photo" loading="lazy">
+            <div class="team-photo-bar"></div>
+            <div class="team-photo-overlay"><span class="team-view-chip" data-i18n="team.viewProfile">View profile</span></div>
           </div>
-        </div>
-        <div class="team-card spotlight-card">
-          <div class="team-photo-wrapper">
-            <img src="images/team/Ezequel.jpg" alt="Ezequel" class="team-photo">
-            <div class="team-photo-overlay">
-              <div class="team-social">
-                <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                <a href="#"><i class="fas fa-envelope"></i></a>
-              </div>
-            </div>
+          <h3>Joao</h3>
+          <p class="team-role">System Analyst</p>
+          <p class="team-bio">Joao is a System Analyst at Enzi Dev, supporting the analysis and improvement of systems.</p>
+        </button>
+        <button type="button" class="team-member" data-animate="fade-up" data-delay="160" onclick="openTeamModal(this)" data-name="Brigida" data-role="IT Support" data-bio="Brigida is an IT Support professional at Enzi Dev, helping maintain reliable technology operations." data-photo="images/team/Brigida.jpg" data-email="enzi23dev@gmail.com" data-phone="+670 76726974">
+          <div class="team-photo-frame">
+            <img src="images/team/Brigida.jpg" alt="Brigida" class="team-photo" loading="lazy">
+            <div class="team-photo-bar"></div>
+            <div class="team-photo-overlay"><span class="team-view-chip" data-i18n="team.viewProfile">View profile</span></div>
           </div>
-          <div class="team-info">
-            <h3>Ezequel</h3>
-            <span class="team-role">IT Manager</span>
-            <p>Ezequel is an IT Manager at Enzi Dev, supporting the company's ICT, cybersecurity, and software development operations.</p>
-            <a href="javascript:void(0)" class="team-link" onclick="openTeamModal(this)" data-name="Ezequel" data-role="IT Manager" data-bio="Ezequel is an IT Manager at Enzi Dev." data-photo="images/team/Ezequel.jpg" data-email="enzi23dev@gmail.com" data-phone="+670 76726974">View profile <i class="fas fa-arrow-right"></i></a>
-          </div>
-        </div>
-        <div class="team-card spotlight-card">
-          <div class="team-photo-wrapper">
-            <img src="images/team/Reinildo.jpg" alt="Reinildo" class="team-photo">
-            <div class="team-photo-overlay">
-              <div class="team-social">
-                <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                <a href="#"><i class="fas fa-envelope"></i></a>
-              </div>
-            </div>
-          </div>
-          <div class="team-info">
-            <h3>Reinildo</h3>
-            <span class="team-role">Networking</span>
-            <p>Reinildo is a Networking professional at Enzi Dev, supporting the planning, implementation, and maintenance of network infrastructure.</p>
-            <a href="javascript:void(0)" class="team-link" onclick="openTeamModal(this)" data-name="Reinildo" data-role="Networking" data-bio="Reinildo is a Networking professional at Enzi Dev." data-photo="images/team/Reinildo.jpg" data-email="enzi23dev@gmail.com" data-phone="+670 76726974">View profile <i class="fas fa-arrow-right"></i></a>
-          </div>
-        </div>
-        <div class="team-card spotlight-card">
-          <div class="team-photo-wrapper">
-            <img src="images/team/joao.jpg" alt="Joao" class="team-photo">
-            <div class="team-photo-overlay">
-              <div class="team-social">
-                <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                <a href="#"><i class="fas fa-envelope"></i></a>
-              </div>
-            </div>
-          </div>
-          <div class="team-info">
-            <h3>Joao</h3>
-            <span class="team-role">System Analyst</span>
-            <p>Joao is a System Analyst at Enzi Dev, supporting the analysis and improvement of systems.</p>
-            <a href="javascript:void(0)" class="team-link" onclick="openTeamModal(this)" data-name="Joao" data-role="System Analyst" data-bio="Joao is a System Analyst at Enzi Dev." data-photo="images/team/joao.jpg" data-email="enzi23dev@gmail.com" data-phone="+670 76726974">View profile <i class="fas fa-arrow-right"></i></a>
-          </div>
-        </div>
-        <div class="team-card spotlight-card">
-          <div class="team-photo-wrapper">
-            <img src="images/team/Brigida.jpg" alt="Brigida" class="team-photo">
-            <div class="team-photo-overlay">
-              <div class="team-social">
-                <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                <a href="#"><i class="fas fa-envelope"></i></a>
-              </div>
-            </div>
-          </div>
-          <div class="team-info">
-            <h3>Brigida</h3>
-            <span class="team-role">IT Support</span>
-            <p>Brigida is an IT Support professional at Enzi Dev, helping maintain reliable technology operations.</p>
-            <a href="javascript:void(0)" class="team-link" onclick="openTeamModal(this)" data-name="Brigida" data-role="IT Support" data-bio="Brigida is an IT Support professional at Enzi Dev." data-photo="images/team/Brigida.jpg" data-email="enzi23dev@gmail.com" data-phone="+670 76726974">View profile <i class="fas fa-arrow-right"></i></a>
-          </div>
-        </div>
+          <h3>Brigida</h3>
+          <p class="team-role">IT Support</p>
+          <p class="team-bio">Brigida is an IT Support professional at Enzi Dev, helping maintain reliable technology operations.</p>
+        </button>
       </div>
     </div>
   </section>
