@@ -1,59 +1,76 @@
 # Enzi Dev Website
 
+Corporate landing page for **Enzi Dev** — an ICT company in Dili, Timor-Leste. Static frontend (HTML/CSS/JS) served by a Django backend that also provides the content API and admin panel.
+
 ## Structure
 
 ```
 enzidev/
-├── website/              # Static HTML website
-│   ├── index.html        # Main HTML file
-│   ├── css/
-│   │   └── style.css     # Stylesheet
-│   ├── js/
-│   │   └── script.js     # JavaScript
+├── website/                  # Frontend (static site)
+│   ├── index.html            # Single-page site: home, about, services, projects,
+│   │                         #   activities, posts, team, contact, …
+│   ├── css/style.css         # All styles
+│   ├── js/script.js          # All behavior: i18n (EN/Tetum), animations, admin CRUD
+│   ├── js/posts-data.js      # Post categories + seed source for posts
+│   ├── favicon.svg
 │   └── images/
-│       ├── Enzi.png      # Logo
-│       └── team/         # Team member photos
-│           ├── joaquim_martins.png
-│           ├── lucia_pereira.jpeg
-│           ├── anadelia_belita.jpeg
-│           ├── manuel_godinho.jpeg
-│           ├── baquito_felisberto.jpeg
-│           ├── rabina_marques.jpeg
-│           ├── joaquim_klaud.jpeg
-│           ├── custodio.jpeg
-│           └── sancho_salsinha.jpeg
+│       ├── Enzi.png          # Social-share image (og/twitter)
+│       ├── clients/          # Client logos (10)
+│       └── team/             # Team member photos (7)
 │
-├── django/               # Django backend
-│   ├── enzi_website/     # Django project settings
-│   ├── website/          # Django app
-│   ├── manage.py         # Django management
-│   ├── db.sqlite3        # SQLite database
-│   └── venv/             # Python virtual environment
+├── django/                   # Backend
+│   ├── manage.py             # Django CLI
+│   ├── db.sqlite3            # Database (local, git-ignored)
+│   ├── venv/                 # Python virtualenv (git-ignored)
+│   ├── enzi_website/         # Project settings, root URLs, WSGI
+│   └── website/              # Main app
+│       ├── models.py         # Content models (see django/README.md)
+│       ├── views.py          # Page view + JSON API
+│       ├── urls.py           # API routes
+│       ├── admin.py          # /admin/ panel registrations
+│       ├── migrations/       # Schema history
+│       └── management/commands/
+│           ├── seed_posts.py     # Seed sample blog posts
+│           └── seed_content.py   # Seed About chapters + Team members
 │
-└── README.md             # This file
+└── README.md                 # This file
 ```
 
 ## How to Run
 
-### Static Website
-```bash
-cd enzidev/website
-python3 -m http.server 8000
-```
-Open: http://localhost:8000
+Everything (site + API + admin) is served by **one Django server**.
 
-### Django Backend
 ```bash
-cd enzidev/django
+cd django
+python3 manage.py runserver 0.0.0.0:8000
+```
+
+Then open:
+
+- **Website:** http://127.0.0.1:8000/
+- **Admin:** http://127.0.0.1:8000/admin/
+
+Stop the server with `Ctrl+C`.
+
+### First-time setup
+
+```bash
+cd django
+python3 -m venv venv
 source venv/bin/activate
-python3 manage.py runserver
+pip install django
+python3 manage.py migrate
+python3 manage.py seed_content   # About + Team
+python3 manage.py seed_posts     # Sample posts
+python3 manage.py createsuperuser
 ```
-Open: http://localhost:8000
 
-### Django Admin
-Open: http://localhost:8000/admin/
-- Username: admin
-- Password: admin123
+### Admin accounts
+
+Manage users at `/admin/` (create one with `createsuperuser` above).
+
+- Logged-in staff can edit **Posts**, **About**, and **Team** directly on the page (New / Edit / Delete buttons).
+- Visitors without a session only see content — all write APIs return `403`.
 
 ## Contact
 
