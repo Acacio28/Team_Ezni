@@ -9,8 +9,8 @@ ABOUT = [
         'order': 1,
         'title_en': 'Who We Are',
         'title_tet': 'Se Mak Ami',
-        'body_en': 'Based in Fatuhada, Dili, Timor-Leste, Enzi Dev is a full-service ICT company offering technology solutions that help businesses, government institutions, NGOs and private organizations modernize, connect and grow.',
-        'body_tet': "Bazeia iha Fatuhada, Dili, Timor-Leste, Enzi Dev mak kompañia ICT servisu-kompletu ida ne'ebé oferese solusaun teknolojia hodi ajuda empreza, instituisaun governu, ONG no organizasaun privadu sira atu moderniza, liga no buras.",
+        'body_en': 'Based in Hera, Dili, Timor-Leste, Enzi Dev is a full-service ICT company offering technology solutions that help businesses, government institutions, NGOs and private organizations modernize, connect and grow.',
+        'body_tet': "Bazeia iha Hera, Dili, Timor-Leste, Enzi Dev mak kompañia ICT servisu-kompletu ida ne'ebé oferese solusaun teknolojia hodi ajuda empreza, instituisaun governu, ONG no organizasaun privadu sira atu moderniza, liga no buras.",
     },
     {
         'key': 'ch2',
