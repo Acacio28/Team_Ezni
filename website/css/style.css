@@ -4283,7 +4283,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 }
 
 .whatsapp-float {
-  background: var(--success);
+  background: #25D366;
 }
 
 .whatsapp-float:hover {
@@ -4385,33 +4385,49 @@ ul { list-style: none; margin: 0; padding: 0; }
   opacity: 1;
 }
 
-/* ===== Pulse Ring Animation (WhatsApp) ===== */
-.whatsapp-float {
-  position: relative;
+/* ===== Pulse Ring Animation (WhatsApp) — kinos exact ===== */
+.float-btn.whatsapp-float {
+  position: fixed;
+  width: 56px;
+  height: 56px;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  background: #25D366;
+  box-shadow: 0 8px 30px rgba(37, 211, 102, 0.4);
+}
+
+.float-btn.whatsapp-float::after {
+  content: none;
+}
+
+.float-btn.whatsapp-float:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 30px rgba(37, 211, 102, 0.4);
+}
+
+.float-btn.whatsapp-float:hover::after,
+.float-btn.whatsapp-float:hover::before {
+  right: 0;
 }
 
 .whatsapp-float::before {
   content: '';
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  background: rgba(37, 211, 102, 0.4);
-  transform: translate(-50%, -50%) scale(1);
-  animation: pulse-ring 1.8s ease-out infinite;
+  inset: 0;
+  border-radius: 999px;
+  background: #25D366;
   z-index: -1;
+  animation: pulse-ring 1.8s ease-out infinite;
 }
 
 @keyframes pulse-ring {
   0% {
-    transform: translate(-50%, -50%) scale(1);
     opacity: 0.6;
+    transform: scale(1);
   }
   100% {
-    transform: translate(-50%, -50%) scale(1.9);
     opacity: 0;
+    transform: scale(1.9);
   }
 }
 
