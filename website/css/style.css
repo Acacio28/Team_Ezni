@@ -930,6 +930,69 @@ ul { list-style: none; margin: 0; padding: 0; }
   margin: 1.5rem auto 0;
 }
 
+/* ===== Marquee Strip (kinos exact) ===== */
+.marquee-strip {
+  background: var(--bg-primary);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1.75rem 0;
+  overflow: hidden;
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll var(--marquee-duration, 60s) linear infinite;
+}
+
+.marquee-strip:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+.marquee-group {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.marquee-item {
+  display: flex;
+  align-items: center;
+}
+
+.marquee-item > span {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 1.875rem;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: -0.025em;
+  margin: 0 2rem;
+  white-space: nowrap;
+}
+
+.marquee-item svg {
+  color: var(--primary);
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+}
+
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (min-width: 768px) {
+  .marquee-item > span {
+    font-size: 3rem;
+  }
+}
+
 /* ===== About Section ===== */
 /* ===== About Section ===== */
 /* ===== About Section (kinos.tl exact) ===== */

@@ -278,6 +278,14 @@ document.addEventListener('DOMContentLoaded', function () {
       'about.ch2body': '“Create innovative, reliable and flexible technology products and services, continuously evolving to challenge the market and guarantee seamless stakeholder satisfaction.”',
       'about.ch3title': 'Our Vision',
       'about.ch3body': 'To be the most reliable and trusted IT provider in Timor-Leste, recognized for responsiveness, innovation and service excellence.',
+      'marquee.item1': 'ICT Infrastructure',
+      'marquee.item2': 'Software Development',
+      'marquee.item3': 'Cybersecurity',
+      'marquee.item4': 'Cloud & Hosting',
+      'marquee.item5': 'Hardware Supply',
+      'marquee.item6': 'IT Consultancy',
+      'marquee.item7': '24/7 Support',
+      'marquee.item8': 'Web Development',
       'why.label': 'Why Choose Enzi Dev',
       'why.title': 'Why choose Enzi Dev',
       'why.item1': 'Certified ICT & Cybersecurity Partner',
@@ -418,6 +426,14 @@ document.addEventListener('DOMContentLoaded', function () {
       'about.ch2body': '“Kria produtu no servisu teknolojia ne\'ebé inovativu, fiar no fleksivel, kontinua evolui hodi desafia merkadu no garante satisfasaun ba stakeholder sira.”',
       'about.ch3title': 'Ami-nia Visaun',
       'about.ch3body': 'Sai fornecedor IT ne\'ebé fiar no konfiadu liu iha Timor-Leste, rekonseidu tanba responsividade, inovasaun no exselénsia iha servisu.',
+      'marquee.item1': 'Infraestrutura ICT',
+      'marquee.item2': 'Dezenvolvimentu Software',
+      'marquee.item3': 'Seguransa Sibernética',
+      'marquee.item4': 'Cloud & Hosting',
+      'marquee.item5': 'Fornese Hardware',
+      'marquee.item6': 'Konsultoria IT',
+      'marquee.item7': 'Apoiu 24/7',
+      'marquee.item8': 'Dezenvolvimentu Web',
       'why.label': 'Tanbasa Hili Enzi Dev',
       'why.title': 'Tanbasa hili Enzi Dev',
       'why.item1': 'Parseiru ICT no Seguransa Sibernética Sertifikadu',
@@ -2141,3 +2157,23 @@ function closeSignupModal() {
   }
 })();
 
+
+/* ===== Marquee Strip (kinos exact) ===== */
+(function () {
+  var track = document.getElementById('marqueeTrack');
+  if (!track) return;
+  var group = track.querySelector('.marquee-group');
+  if (!group) return;
+
+  var clone = group.cloneNode(true);
+  clone.setAttribute('aria-hidden', 'true');
+  track.appendChild(clone);
+
+  function updateDuration() {
+    var w = group.getBoundingClientRect().width;
+    if (w > 0) track.style.setProperty('--marquee-duration', (w / 35) + 's');
+  }
+
+  updateDuration();
+  window.addEventListener('resize', updateDuration);
+})();
